@@ -12,7 +12,7 @@ public class InfoBitmap {
      *
      * @return
      */
-    byte[][] get2DByteArray() {
+    public byte[][] get2DByteArray() {
         byte[][] array = new byte[getHeight()][getWidth()];
         int[] row = new int[getWidth()];
         for (int y = 0; y < bitmap.getHeight(); ++y) {
@@ -29,7 +29,7 @@ public class InfoBitmap {
      *
      * @return
      */
-    int getWidth() {
+    public int getWidth() {
         return bitmap.getWidth();
     }
 
@@ -37,7 +37,7 @@ public class InfoBitmap {
      *
      * @return
      */
-    int getHeight() {
+    public int getHeight() {
         return bitmap.getHeight();
     }
 
