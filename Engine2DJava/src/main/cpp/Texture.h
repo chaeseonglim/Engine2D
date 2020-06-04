@@ -12,8 +12,8 @@ namespace Engine2D {
 class Texture
 {
 public:
-    Texture(const GLchar *file, bool alpha);
-    Texture(const unsigned char *memory, size_t memSize, bool alpha);
+    Texture(const GLchar *file, bool alpha, bool smooth);
+    Texture(const unsigned char *memory, size_t memSize, bool alpha, bool smooth);
     ~Texture();
 
     void prepare(unsigned char* data);
@@ -31,6 +31,38 @@ public:
         return mHeight;
     }
 
+    GLuint getWrapS() const {
+        return mWrapS;
+    }
+
+    void setWrapS(GLuint mWrapS) {
+        Texture::mWrapS = mWrapS;
+    }
+
+    GLuint getWrapT() const {
+        return mWrapT;
+    }
+
+    void setWrapT(GLuint mWrapT) {
+        Texture::mWrapT = mWrapT;
+    }
+
+    GLuint getFilterMin() const {
+        return mFilterMin;
+    }
+
+    void setFilterMin(GLuint mFilterMin) {
+        Texture::mFilterMin = mFilterMin;
+    }
+
+    GLuint getFilterMax() const {
+        return mFilterMax;
+    }
+
+    void setFilterMax(GLuint mFilterMax) {
+        Texture::mFilterMax = mFilterMax;
+    }
+
 private:
     void loadFromFile(const GLchar *file, GLboolean alpha);
     void loadFromMemory(const unsigned char *memory, size_t memSize, GLboolean alpha);
@@ -41,6 +73,7 @@ private:
     // Texture image dimensions
     GLuint mWidth, mHeight; // Width and height of loaded image in pixels
     bool mAlpha; // Alphaness of image
+    bool mSmooth; // Smoothness of image
     // Texture Format
     GLuint mInternalFormat = GL_RGB; // Format of texture object
     GLuint mImageFormat = GL_RGB; // Format of loaded image

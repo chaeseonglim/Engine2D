@@ -13,23 +13,35 @@
 
 namespace Engine2D {
 
-Texture::Texture(const GLchar *file, bool alpha)
+Texture::Texture(const GLchar *file, bool alpha, bool smooth)
         : mAlpha(alpha)
+        , mSmooth(smooth)
 {
     if (mAlpha) {
         mInternalFormat = GL_RGBA;
         mImageFormat = GL_RGBA;
     }
 
+    if (!mSmooth) {
+       mFilterMax = GL_NEAREST;
+       mFilterMin = GL_NEAREST;
+    }
+
     loadFromFile(file, alpha);
 }
 
-Texture::Texture(const unsigned char *memory, size_t memSize, bool alpha)
+Texture::Texture(const unsigned char *memory, size_t memSize, bool alpha, bool smooth)
         : mAlpha(alpha)
+        , mSmooth(smooth)
 {
     if (mAlpha) {
         mInternalFormat = GL_RGBA;
         mImageFormat = GL_RGBA;
+    }
+
+    if (!mSmooth) {
+        mFilterMax = GL_NEAREST;
+        mFilterMin = GL_NEAREST;
     }
 
     loadFromMemory(memory, memSize, alpha);

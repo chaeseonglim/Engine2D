@@ -11,11 +11,13 @@ namespace Engine2D
 {
 
 ResourceManager *ResourceManager::getInstance() {
-    static std::unique_ptr <ResourceManager> sResourceManager = std::make_unique<ResourceManager>(ConstructorTag{});
+    static std::unique_ptr <ResourceManager> sResourceManager =
+            std::make_unique<ResourceManager>(ConstructorTag{});
     return sResourceManager.get();
 }
 
-std::shared_ptr<Texture> ResourceManager::loadTexture(const GLchar *file, GLboolean alpha, std::string name)
+std::shared_ptr<Texture> ResourceManager::loadTexture(const GLchar *file, GLboolean alpha,
+        GLboolean smooth, std::string name)
 {
     std::unique_lock<std::mutex> lock(mTextureLock);
 
@@ -26,7 +28,7 @@ std::shared_ptr<Texture> ResourceManager::loadTexture(const GLchar *file, GLbool
         return iter->second.first;
     }
 
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(file, alpha);
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(file, alpha, smooth);
     if (texture && texture->isLoaded()) {
         mTextures[name] = std::make_pair(texture, 1);
     }
@@ -37,7 +39,8 @@ std::shared_ptr<Texture> ResourceManager::loadTexture(const GLchar *file, GLbool
     return texture;
 }
 
-std::shared_ptr<Texture> ResourceManager::loadTexture(const unsigned char *memory, size_t memSize, GLboolean alpha, std::string name)
+std::shared_ptr<Texture> ResourceManager::loadTexture(const unsigned char *memory, size_t memSize,
+        GLboolean alpha, GLboolean smooth, std::string name)
 {
     std::unique_lock<std::mutex> lock(mTextureLock);
 
@@ -48,7 +51,7 @@ std::shared_ptr<Texture> ResourceManager::loadTexture(const unsigned char *memor
         return iter->second.first;
     }
 
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(memory, memSize, alpha);
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(memory, memSize, alpha, smooth);
     if (texture && texture->isLoaded()) {
         mTextures[name] = std::make_pair(texture, 1);
     }

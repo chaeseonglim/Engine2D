@@ -171,7 +171,7 @@ Java_com_lifejourney_engine2d_Engine2D_nEngineUnlockDraw(JNIEnv *env, jobject th
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_lifejourney_engine2d_ResourceManager_nLoadTexture(JNIEnv *env, jobject thiz,
-                                                              jstring name, jbyteArray image) {
+                                                  jstring name, jbyteArray image, jboolean smooth) {
 
     std::string nameS = to_string(name, env);
     if (nameS.empty()) {
@@ -186,7 +186,8 @@ Java_com_lifejourney_engine2d_ResourceManager_nLoadTexture(JNIEnv *env, jobject 
     }
 
     jbyte *cImage = env->GetByteArrayElements(image, nullptr);
-    if (ResourceManager::getInstance()->loadTexture((const unsigned char*)cImage, imageSize, true, nameS) == nullptr) {
+    if (ResourceManager::getInstance()->loadTexture((const unsigned char*)cImage, imageSize, true,
+            smooth, nameS) == nullptr) {
         ALOGW("Failed to load texture from memory")
         env->ReleaseByteArrayElements(image, cImage, 0);
         return false;

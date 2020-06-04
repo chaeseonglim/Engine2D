@@ -26,8 +26,9 @@ public:
     void releaseAllTextures();
 
 public:
-    std::shared_ptr<Texture> loadTexture(const GLchar *file, GLboolean alpha, std::string name);
-    std::shared_ptr<Texture> loadTexture(const unsigned char *memory, size_t memSize, GLboolean alpha, std::string name);
+    std::shared_ptr<Texture> loadTexture(const GLchar *file, GLboolean alpha, GLboolean smooth, std::string name);
+    std::shared_ptr<Texture> loadTexture(const unsigned char *memory, size_t memSize, GLboolean alpha,
+            GLboolean smooth, std::string name);
     std::shared_ptr<Texture> attachTexture(std::string name);
     void releaseTexture(std::string name);
     std::shared_ptr<Texture> getTexture(std::string name);
