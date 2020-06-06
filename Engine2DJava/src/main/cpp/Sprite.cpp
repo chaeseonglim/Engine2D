@@ -58,10 +58,12 @@ auto const sFragmentShader =
     "out vec4 color;\n"
 
     "uniform sampler2D image;\n"
+    "uniform float opaque;\n"
 
     "void main()\n"
     "{\n"
     "    color = texture(image, TexCoords);\n"
+    "    color.a *= opaque;\n"
     "}\n";
 
 bool checkGlError(const char *op) {
@@ -166,6 +168,8 @@ Sprite::ProgramState::ProgramState() {
     checkGlError("glGetUniformLocation(model)");
     projectionHandle = glGetUniformLocation(program, "projection");
     checkGlError("glGetUniformLocation(projection)");
+    opaqueHandle = glGetUniformLocation(program, "opaque");
+    checkGlError("glGetUniformLocation(opaque)");
 }
 
 Sprite::Sprite(const std::shared_ptr<Texture>& texture, int gridCols, int gridRows)
@@ -293,6 +297,8 @@ void Sprite::draw(const glm::mat4 &projection, const glm::mat4 &initialModel)
 
     glUniformMatrix4fv(state.projectionHandle, 1, GL_FALSE, glm::value_ptr(projection));
     checkGlError("glUniformMatrix4fv(projection)");
+
+    glUniform1f(state.opaqueHandle, mOpaque);
 
     glBindVertexArray(mQuadVAO);
     checkGlError("glBindVertexArray");

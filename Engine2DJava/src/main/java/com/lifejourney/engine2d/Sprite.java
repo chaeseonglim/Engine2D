@@ -11,13 +11,15 @@ public class Sprite {
         private String asset;
 
         // optional
-        private Point position;
-        private Size size;
+        private Point position = new Point(0, 0);
+        private Size size = new Size(0, 0);
         private int layer = 0;
         private float depth = 0.0f;
         private float rotation = 0.0f;
+        private float opaque = 1.0f;
         private boolean visible = false;
         private Size gridSize = new Size(1, 1);
+        private boolean smooth = true;
 
         public Builder(String asset) {
             this.asset = asset;
@@ -38,6 +40,10 @@ public class Sprite {
             this.depth = depth;
             return this;
         }
+        public Builder opaque(float opaque) {
+            this.opaque = opaque;
+            return this;
+        }
         public Builder rotation(float rotation) {
             this.rotation = rotation;
             return this;
@@ -50,6 +56,10 @@ public class Sprite {
             this.gridSize = gridSize;
             return this;
         }
+        public Builder smooth(boolean smooth) {
+            this.smooth = smooth;
+            return this;
+        }
         public Sprite build() {
             return new Sprite(this);
         }
@@ -60,11 +70,13 @@ public class Sprite {
         size        = builder.size;
         layer       = builder.layer;
         depth       = builder.depth;
+        opaque      = builder.opaque;
         rotation    = builder.rotation;
         asset       = builder.asset;
         visible     = builder.visible;
         gridSize    = builder.gridSize;
         gridIndex   = new Point();
+        smooth      = builder.smooth;
 
         load();
     }
@@ -75,7 +87,7 @@ public class Sprite {
      */
     public boolean load() {
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-        if (!resourceManager.loadTexture(asset)) {
+        if (!resourceManager.loadTexture(asset, smooth)) {
             Log.e(LOG_TAG, "Failed to load texture");
             return false;
         }
@@ -113,7 +125,7 @@ public class Sprite {
      *
      */
     public void commit() {
-        nSetProperties(id, position.x, position.y, size.width, size.height, layer, depth,
+        nSetProperties(id, position.x, position.y, size.width, size.height, layer, depth, opaque,
                 rotation, visible, gridIndex.x, gridIndex.y);
     }
 
@@ -265,16 +277,18 @@ public class Sprite {
     private int layer;
     private Point position;
     private Size size;
+    private float opaque;
     private float rotation;
     private float depth;
     private String asset;
     private boolean visible;
+    private boolean smooth;
     private Size gridSize;
     private Point gridIndex;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);
     private native void nSetProperties(int id, int x, int y, int width, int height, int layer,
-                                       float depth, float rotation, boolean visible, int gridCol,
-                                       int gridRow);
+                                       float depth, float opaque, float rotation, boolean visible,
+                                       int gridCol, int gridRow);
 }

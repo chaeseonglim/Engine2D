@@ -26,10 +26,4 @@ public interface View {
      *
      */
     void hide();
-
-    /**
-     *
-     * @return
-     */
-    Size getSize();
 }

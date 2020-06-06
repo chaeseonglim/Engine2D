@@ -18,6 +18,19 @@ public class World {
     /**
      *
      */
+    protected void close() {
+        mainView.close();
+        for (View view : subViews) {
+            view.close();
+        }
+
+        mainView = null;
+        subViews.clear();
+    }
+
+    /**
+     *
+     */
     public void update() {
         // Check the time elapsed since last update
         long currentTime = System.currentTimeMillis();

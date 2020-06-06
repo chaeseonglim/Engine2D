@@ -250,7 +250,7 @@ Java_com_lifejourney_engine2d_ResourceManager_nReleaseAllTextures(JNIEnv *env, j
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_lifejourney_engine2d_Sprite_nCreateSprite(JNIEnv *env, jobject thiz, jstring asset,
-                                                   jint gridCols, jint gridRows) {
+                   jint gridCols, jint gridRows) {
     std::string textureNameS = to_string(asset, env);
 
     if (textureNameS.length() > 0) {
@@ -270,17 +270,18 @@ Java_com_lifejourney_engine2d_Sprite_nDestroySprite(JNIEnv *env, jobject thiz, j
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_lifejourney_engine2d_Sprite_nSetProperties(JNIEnv *env, jobject thiz, jint id, jint x, jint y,
-                                                jint width, jint height, jint layer,
-                                                jfloat depth, jfloat rotation, jboolean visible,
-                                                jint gridCol, jint gridRow) {
+                                    jint width, jint height, jint layer, jfloat depth,
+                                    jfloat opaque, jfloat rotation, jboolean visible,
+                                    jint gridCol, jint gridRow) {
     auto sprite = SpriteManager::getInstance()->get(id);
     if (sprite == nullptr) {
         ALOGW("Invalid sprite %d", id);
         return;
     }
 
-    sprite->setPos(glm::vec2((float)x, (float)y));
+    sprite->setPosition(glm::vec2((float) x, (float) y));
     sprite->setSize(glm::vec2(width, height));
+    sprite->setOpaque(opaque);
     sprite->setLayer(layer);
     sprite->setDepth(depth);
     sprite->setRotation(glm::radians(rotation));
@@ -307,9 +308,9 @@ Java_com_lifejourney_engine2d_Line_nDestoryLine(JNIEnv *env, jobject thiz, jint 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_lifejourney_engine2d_Line_nSetProperties(JNIEnv *env, jobject thiz, jint id,
-                                                  jfloat begin_x, jfloat begin_y, jfloat end_x, jfloat end_y,
-                                                  jfloat r, jfloat g, jfloat b, jfloat a, jint layer,
-                                                  jfloat depth, jboolean visible) {
+                    jfloat begin_x, jfloat begin_y, jfloat end_x, jfloat end_y,
+                    jfloat r, jfloat g, jfloat b, jfloat a, jint layer,
+                    jfloat depth, jboolean visible) {
     std::shared_ptr<Line> line =
             std::dynamic_pointer_cast<Line>(ShapeManager::getInstance()->get(id));
     if (line == nullptr) {

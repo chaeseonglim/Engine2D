@@ -1,7 +1,6 @@
 package com.lifejourney.engine2d;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.Surface;
 
 public class Engine2D {
@@ -31,8 +30,6 @@ public class Engine2D {
      */
     public void initEngine(Activity activity) {
         if (!initialized) {
-            Log.e(LOG_TAG, "activity: " + activity);
-
             // Initialize Engine
             nEngineInit(activity);
 

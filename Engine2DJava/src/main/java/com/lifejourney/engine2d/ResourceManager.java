@@ -23,7 +23,7 @@ public class ResourceManager {
      * @param asset
      * @return
      */
-    boolean loadTexture(String asset) {
+    boolean loadTexture(String asset, boolean smooth) {
         // NOTE: It won't give your texture object instead it's added inside the 2D engine.
 
         boolean result = false;
@@ -35,7 +35,7 @@ public class ResourceManager {
                 is.read(fileBytes);
                 is.close();
 
-                result = nLoadTexture(asset, fileBytes);
+                result = nLoadTexture(asset, fileBytes, smooth);
             }
             else {
                 result = nAttachTexture(asset);
@@ -86,7 +86,7 @@ public class ResourceManager {
 
     private Context context;
 
-    private native boolean nLoadTexture(String name, byte[] image);
+    private native boolean nLoadTexture(String name, byte[] image, boolean smooth);
     private native boolean nAttachTexture(String name);
     private native void nReleaseTexture(String name);
     private native boolean nIsTextureLoaded(String name);

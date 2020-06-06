@@ -34,41 +34,72 @@ public:
 
     void draw(const glm::mat4 &projection, const glm::mat4 &initialModel);
 
-    void show() { mVisible = true; }
-    void hide() { mVisible = false;}
-    void setVisible(bool visible) { mVisible = visible; }
-    bool isVisible() const { return mVisible; }
+    void show() {
+        mVisible = true;
+    }
+    void hide() {
+        mVisible = false;
+    }
+    void setVisible(bool visible) {
+        mVisible = visible;
+    }
+    bool isVisible() const {
+        return mVisible;
+    }
+    const glm::vec2 &getPosition() const {
+        return mPos;
+    }
+    void setPosition(const glm::vec2 &pos) {
+        Sprite::mPos = pos;
+    }
+    const glm::vec2 &getSize() const {
+        return mSize;
+    }
+    void setSize(const glm::vec2 &size) {
+        Sprite::mSize = size;
+    }
+    GLfloat getRotation() const {
+        return mRotation;
+    }
+    void setRotation(GLfloat rotation) {
+        Sprite::mRotation = rotation;
+    }
+    GLfloat getOpaque() const {
+        return mOpaque;
+    }
 
-    const glm::vec2 &getPos() const { return mPos; }
-    void setPos(const glm::vec2 &pos) { Sprite::mPos = pos; }
+    void setOpaque(GLfloat mOpaque) {
+        Sprite::mOpaque = mOpaque;
+    }
+    const int getLayer() const {
+        return mLayer;
+    }
+    void setLayer(int layer) {
+        mLayer = layer;
+    }
 
-    const glm::vec2 &getSize() const { return mSize; }
-    void setSize(const glm::vec2 &size) { Sprite::mSize = size; }
-
-    GLfloat getRotation() const { return mRotation; }
-    void setRotation(GLfloat rotation) { Sprite::mRotation = rotation; }
-
-    const int getLayer() const { return mLayer; }
-    void setLayer(int layer) { mLayer = layer; }
-
-    const GLfloat getDepth() const { return mDepth; }
-    void setDepth(GLfloat depth) { mDepth = depth; }
+    const GLfloat getDepth() const {
+        return mDepth;
+    }
+    void setDepth(GLfloat depth) {
+        mDepth = depth;
+    }
 
     const void setGridIndex(int gridCol, int gridRow);
 
-    int getMGridRows() const {
+    int getGridRows() const {
         return mGridRows;
     }
 
-    int getMGridCols() const {
+    int getGridCols() const {
         return mGridCols;
     }
 
-    int getMCurGridRow() const {
+    int getCurGridRow() const {
         return mCurGridRow;
     }
 
-    int getMCurGridCol() const {
+    int getCurGridCol() const {
         return mCurGridCol;
     }
 
@@ -79,6 +110,7 @@ private:
         GLuint program;
         GLint modelHandle;
         GLint projectionHandle;
+        GLint opaqueHandle;
     };
     static std::unique_ptr<ProgramState> sProgramState;
 
@@ -95,6 +127,7 @@ private:
     int mLayer = 0;
     GLfloat mDepth = 0.0f;
     GLfloat mRotation = 0.0f;
+    GLfloat mOpaque = 1.0f;
     std::shared_ptr<Texture> mTexture;
     GLuint mQuadVAO;
     GLuint mVBO;
