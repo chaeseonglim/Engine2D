@@ -135,6 +135,17 @@ public class Point {
 
     /**
      *
+     * @param p
+     * @return
+     */
+    public Point multiply(PointF p) {
+        x = (int)(x * p.x);
+        y = (int)(y * p.y);
+        return this;
+    }
+
+    /**
+     *
      * @param m
      * @return
      */

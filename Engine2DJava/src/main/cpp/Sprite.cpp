@@ -50,7 +50,21 @@ auto const sVertexShader =
     "    TexCoords = vertex.zw;\n"
     "    gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);\n"
     "}\n";
-auto const sFragmentShader =
+auto const sFragmentShaderOpaque =
+    "#version 300 es\n"
+    "precision mediump float;"
+
+    "in vec2 TexCoords;\n"
+    "out vec4 color;\n"
+
+    "uniform sampler2D image;\n"
+    "uniform float opaque;\n"
+
+    "void main()\n"
+    "{\n"
+    "    color = texture(image, TexCoords);\n"
+    "}\n";
+auto const sFragmentShaderTransparent =
     "#version 300 es\n"
     "precision mediump float;"
 
@@ -64,6 +78,37 @@ auto const sFragmentShader =
     "{\n"
     "    color = texture(image, TexCoords);\n"
     "    color.a *= opaque;\n"
+    "}\n";
+auto const sFragmentShaderOpaqueColorize =
+    "#version 300 es\n"
+    "precision mediump float;"
+
+    "in vec2 TexCoords;\n"
+    "out vec4 color;\n"
+
+    "uniform sampler2D image;\n"
+    "uniform vec3 colorize;\n"
+
+    "void main()\n"
+    "{\n"
+    "   color = texture(image, TexCoords);\n"
+    "   color = vec4(color.xyz * colorize, color.a);\n"
+    "}\n";
+auto const sFragmentShaderTransparentColorize =
+    "#version 300 es\n"
+    "precision mediump float;"
+
+    "in vec2 TexCoords;\n"
+    "out vec4 color;\n"
+
+    "uniform sampler2D image;\n"
+    "uniform float opaque;\n"
+    "uniform vec3 colorize;\n"
+
+    "void main()\n"
+    "{\n"
+    "   color = texture(image, TexCoords);\n"
+    "   color = vec4(color.xyz * colorize, color.a);\n"
     "}\n";
 
 bool checkGlError(const char *op) {
@@ -150,26 +195,86 @@ bool Sprite::initProgram()
 {
     if (sProgramState == nullptr)
         sProgramState.reset(new Sprite::ProgramState);
-    return sProgramState->program != 0;
+    for (size_t i = 0; i < ProgramState::PROGRAM_TYPE_COUNT; ++i) {
+        if (sProgramState->programs[(ProgramState::ProgramType)i].program == 0) {
+            return false;
+        }
+    }
+    return true;
 
 }
 
 Sprite::ProgramState::ProgramState() {
     using namespace SpriteProgram;
 
-    program = createProgram(sVertexShader, sFragmentShader);
-    if (program == 0) {
-        ALOGE("Failed to create program");
-        checkGlError("createProgram");
-        return;
-    }
+    {
+        ProgramType type = ProgramType::PROGRAM_OPAQUE;
 
-    modelHandle = glGetUniformLocation(program, "model");
-    checkGlError("glGetUniformLocation(model)");
-    projectionHandle = glGetUniformLocation(program, "projection");
-    checkGlError("glGetUniformLocation(projection)");
-    opaqueHandle = glGetUniformLocation(program, "opaque");
-    checkGlError("glGetUniformLocation(opaque)");
+        programs[type].program = createProgram(sVertexShader, sFragmentShaderOpaque);
+        if (programs[type].program == 0) {
+            ALOGE("Failed to create program");
+            checkGlError("createProgram");
+            return;
+        }
+
+        programs[type].modelHandle = glGetUniformLocation(programs[type].program, "model");
+        checkGlError("glGetUniformLocation(model)");
+        programs[type].projectionHandle = glGetUniformLocation(programs[type].program, "projection");
+        checkGlError("glGetUniformLocation(projection)");
+    }
+    {
+        ProgramType type = ProgramType::PROGRAM_TRANSPARENT;
+
+        programs[type].program = createProgram(sVertexShader, sFragmentShaderTransparent);
+        if (programs[type].program == 0) {
+            ALOGE("Failed to create program");
+            checkGlError("createProgram");
+            return;
+        }
+
+        programs[type].modelHandle = glGetUniformLocation(programs[type].program, "model");
+        checkGlError("glGetUniformLocation(model)");
+        programs[type].projectionHandle = glGetUniformLocation(programs[type].program, "projection");
+        checkGlError("glGetUniformLocation(projection)");
+        programs[type].opaqueHandle = glGetUniformLocation(programs[type].program, "opaque");
+        checkGlError("glGetUniformLocation(opaque)");
+    }
+    {
+        ProgramType type = ProgramType::PROGRAM_OPAQUE_COLORIZE;
+
+        programs[type].program = createProgram(sVertexShader, sFragmentShaderOpaqueColorize);
+        if (programs[type].program == 0) {
+            ALOGE("Failed to create program");
+            checkGlError("createProgram");
+            return;
+        }
+
+        programs[type].modelHandle = glGetUniformLocation(programs[type].program, "model");
+        checkGlError("glGetUniformLocation(model)");
+        programs[type].projectionHandle = glGetUniformLocation(programs[type].program, "projection");
+        checkGlError("glGetUniformLocation(projection)");
+        programs[type].colorizeHandle = glGetUniformLocation(programs[type].program, "colorize");
+        checkGlError("glGetUniformLocation(colorize)");
+    }
+    {
+        ProgramType type = ProgramType::PROGRAM_TRANSPARENT_COLORIZE;
+
+        programs[type].program = createProgram(sVertexShader, sFragmentShaderTransparentColorize);
+        if (programs[type].program == 0) {
+            ALOGE("Failed to create program");
+            checkGlError("createProgram");
+            return;
+        }
+
+        programs[type].modelHandle = glGetUniformLocation(programs[type].program, "model");
+        checkGlError("glGetUniformLocation(model)");
+        programs[type].projectionHandle = glGetUniformLocation(programs[type].program, "projection");
+        checkGlError("glGetUniformLocation(projection)");
+        programs[type].opaqueHandle = glGetUniformLocation(programs[type].program, "opaque");
+        checkGlError("glGetUniformLocation(opaque)");
+        programs[type].colorizeHandle = glGetUniformLocation(programs[type].program, "colorize");
+        checkGlError("glGetUniformLocation(colorize)");
+    }
 }
 
 Sprite::Sprite(const std::shared_ptr<Texture>& texture, int gridCols, int gridRows)
@@ -192,8 +297,25 @@ void Sprite::prepareInternal()
     bool error = false;
 
     ProgramState &state = *Sprite::sProgramState;
+    ProgramState::ProgramType programType = ProgramState::ProgramType::PROGRAM_OPAQUE;
+    if (mOpaque == 1.0f) {
+        if (mColorize.r != 1.0f || mColorize.g != 1.0f || mColorize.b != 1.0f) {
+            programType = ProgramState::ProgramType::PROGRAM_OPAQUE_COLORIZE;
+        }
+        else {
+            programType = ProgramState::ProgramType ::PROGRAM_OPAQUE;
+        }
+    }
+    else {
+        if (mColorize.r != 1.0f || mColorize.g != 1.0f || mColorize.b != 1.0f) {
+            programType = ProgramState::ProgramType::PROGRAM_TRANSPARENT_COLORIZE;
+        }
+        else {
+            programType = ProgramState::ProgramType ::PROGRAM_TRANSPARENT;
+        }
+    }
 
-    glUseProgram(state.program);
+    glUseProgram(state.programs[programType].program);
     error &= checkGlError("glUseProgram");
 
     glGenVertexArrays(1, &mQuadVAO);
@@ -285,20 +407,45 @@ void Sprite::draw(const glm::mat4 &projection, const glm::mat4 &initialModel)
     }
 
     ProgramState &state = *Sprite::sProgramState;
+    ProgramState::ProgramType programType = ProgramState::ProgramType::PROGRAM_OPAQUE;
+    if (mOpaque == 1.0f) {
+        if (mColorize.r != 1.0f || mColorize.g != 1.0f || mColorize.b != 1.0f) {
+            programType = ProgramState::ProgramType::PROGRAM_OPAQUE_COLORIZE;
+        }
+        else {
+            programType = ProgramState::ProgramType ::PROGRAM_OPAQUE;
+        }
+    }
+    else {
+        if (mColorize.r != 1.0f || mColorize.g != 1.0f || mColorize.b != 1.0f) {
+            programType = ProgramState::ProgramType::PROGRAM_TRANSPARENT_COLORIZE;
+        }
+        else {
+            programType = ProgramState::ProgramType ::PROGRAM_TRANSPARENT;
+        }
+    }
 
-    glUseProgram(state.program);
+    glUseProgram(state.programs[programType].program);
     checkGlError("glUseProgram");
 
     glm::mat4 model = glm::translate(initialModel, glm::vec3(mPos, 0.0f));
     model = glm::rotate(model, mRotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, glm::vec3(mSize.x, mSize.y, 1.0f));
-    glUniformMatrix4fv(state.modelHandle, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(state.programs[programType].modelHandle, 1, GL_FALSE, glm::value_ptr(model));
     checkGlError("glUniformMatrix4fv(model)");
 
-    glUniformMatrix4fv(state.projectionHandle, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(state.programs[programType].projectionHandle, 1, GL_FALSE, glm::value_ptr(projection));
     checkGlError("glUniformMatrix4fv(projection)");
 
-    glUniform1f(state.opaqueHandle, mOpaque);
+    if (mOpaque != 1.0f) {
+        glUniform1f(state.programs[programType].opaqueHandle, mOpaque);
+        checkGlError("glUniform1f(opaque)");
+    }
+
+    if (mColorize.r != 1.0f || mColorize.g != 1.0f || mColorize.b != 1.0f) {
+        glUniform3fv(state.programs[programType].colorizeHandle, 1, glm::value_ptr(mColorize));
+        checkGlError("glUniform3fv(colorize)");
+    }
 
     glBindVertexArray(mQuadVAO);
     checkGlError("glBindVertexArray");

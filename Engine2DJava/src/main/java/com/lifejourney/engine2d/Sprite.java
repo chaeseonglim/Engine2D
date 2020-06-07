@@ -17,6 +17,7 @@ public class Sprite {
         private float depth = 0.0f;
         private float rotation = 0.0f;
         private float opaque = 1.0f;
+        private float[] colorize = { 1.0f, 1.0f, 1.0f };
         private boolean visible = false;
         private Size gridSize = new Size(1, 1);
         private boolean smooth = true;
@@ -59,6 +60,13 @@ public class Sprite {
         public Builder smooth(boolean smooth) {
             this.smooth = smooth;
             return this;
+
+        }
+        public Builder colorize(float r, float g, float b) {
+            this.colorize[0] = r;
+            this.colorize[1] = g;
+            this.colorize[2] = b;
+            return this;
         }
         public Sprite build() {
             return new Sprite(this);
@@ -71,12 +79,13 @@ public class Sprite {
         layer       = builder.layer;
         depth       = builder.depth;
         opaque      = builder.opaque;
+        colorize    = builder.colorize;
         rotation    = builder.rotation;
         asset       = builder.asset;
         visible     = builder.visible;
         gridSize    = builder.gridSize;
-        gridIndex   = new Point();
         smooth      = builder.smooth;
+        gridIndex   = new Point();
 
         load();
     }
@@ -126,7 +135,7 @@ public class Sprite {
      */
     public void commit() {
         nSetProperties(id, position.x, position.y, size.width, size.height, layer, depth, opaque,
-                rotation, visible, gridIndex.x, gridIndex.y);
+                colorize, rotation, visible, gridIndex.x, gridIndex.y);
     }
 
     /**
@@ -271,6 +280,26 @@ public class Sprite {
         this.gridIndex = gridIndex;
     }
 
+    /**
+     *
+     * @param r
+     * @param g
+     * @param b
+     */
+    public void setColorize(float r, float g, float b) {
+        colorize[0] = r;
+        colorize[1] = g;
+        colorize[2] = b;
+    }
+
+    /**
+     *
+     * @param colorize
+     */
+    public void setColorize(float[] colorize) {
+        this.colorize = colorize;
+    }
+
     private final int INVALID_ID = -1;
 
     private int id;
@@ -285,10 +314,12 @@ public class Sprite {
     private boolean smooth;
     private Size gridSize;
     private Point gridIndex;
+    private float[] colorize;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);
     private native void nSetProperties(int id, int x, int y, int width, int height, int layer,
-                                       float depth, float opaque, float rotation, boolean visible,
+                                       float depth, float opaque, float[] colorize,
+                                       float rotation, boolean visible,
                                        int gridCol, int gridRow);
 }

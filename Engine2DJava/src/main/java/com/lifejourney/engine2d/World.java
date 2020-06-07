@@ -1,5 +1,7 @@
 package com.lifejourney.engine2d;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
@@ -77,16 +79,22 @@ public class World {
      *
      */
     private void updateViews() {
+        Log.v(LOG_TAG, "updateView() enter");
+
         mainView.update();
         for (View view : subViews) {
             view.update();
         }
+
+        Log.v(LOG_TAG, "updateView() leave");
     }
 
     /**
      *
      */
     private void updateObjects() {
+        Log.v(LOG_TAG, "updateObject() enter");
+
         PriorityQueue<Object> updateQueue = new PriorityQueue<>();
         for (Object object : objects) {
             updateQueue.offer(object);
@@ -95,8 +103,14 @@ public class World {
             updateQueue.poll().update();
         }
 
+        Log.v(LOG_TAG, "collision detection enter");
+
         // Check collision
         collidablePool.checkCollision();
+
+        Log.v(LOG_TAG, "collision detection leave");
+
+        Log.v(LOG_TAG, "updateObject() leave");
     }
 
     /**

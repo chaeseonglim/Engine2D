@@ -20,6 +20,7 @@
 #include <GLES3/gl3.h>
 #include <glm/glm.hpp>
 #include <mutex>
+#include <vector>
 #include "Texture.h"
 
 namespace Engine2D
@@ -103,14 +104,32 @@ public:
         return mCurGridCol;
     }
 
+    void setColorize(const glm::vec3& colorize) {
+        mColorize = colorize;
+    }
+
 private:
     struct ProgramState {
+
+        enum ProgramType {
+            PROGRAM_OPAQUE,
+            PROGRAM_OPAQUE_COLORIZE,
+            PROGRAM_TRANSPARENT,
+            PROGRAM_TRANSPARENT_COLORIZE,
+            PROGRAM_TYPE_COUNT
+        };
+
+        struct Program {
+            GLuint program;
+            GLint modelHandle;
+            GLint projectionHandle;
+            GLint opaqueHandle;
+            GLint colorizeHandle;
+        };
+
         ProgramState();
 
-        GLuint program;
-        GLint modelHandle;
-        GLint projectionHandle;
-        GLint opaqueHandle;
+        Program programs[PROGRAM_TYPE_COUNT];
     };
     static std::unique_ptr<ProgramState> sProgramState;
 
@@ -128,6 +147,7 @@ private:
     GLfloat mDepth = 0.0f;
     GLfloat mRotation = 0.0f;
     GLfloat mOpaque = 1.0f;
+    glm::vec3 mColorize = glm::vec3(1.0f, 1.0f, 1.0f);
     std::shared_ptr<Texture> mTexture;
     GLuint mQuadVAO;
     GLuint mVBO;

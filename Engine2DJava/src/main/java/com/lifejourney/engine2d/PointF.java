@@ -29,6 +29,10 @@ public class PointF {
         this.y = v.y;
     }
 
+    public PointF clone() {
+        return new PointF(this);
+    }
+
     /**
      *
      * @param x

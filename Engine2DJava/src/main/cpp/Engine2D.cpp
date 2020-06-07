@@ -271,8 +271,8 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_lifejourney_engine2d_Sprite_nSetProperties(JNIEnv *env, jobject thiz, jint id, jint x, jint y,
                                     jint width, jint height, jint layer, jfloat depth,
-                                    jfloat opaque, jfloat rotation, jboolean visible,
-                                    jint gridCol, jint gridRow) {
+                                    jfloat opaque, jfloatArray colorize, jfloat rotation,
+                                    jboolean visible, jint gridCol, jint gridRow) {
     auto sprite = SpriteManager::getInstance()->get(id);
     if (sprite == nullptr) {
         ALOGW("Invalid sprite %d", id);
@@ -287,6 +287,9 @@ Java_com_lifejourney_engine2d_Sprite_nSetProperties(JNIEnv *env, jobject thiz, j
     sprite->setRotation(glm::radians(rotation));
     sprite->setVisible(visible);
     sprite->setGridIndex(gridCol, gridRow);
+    jfloat *cColorize = env->GetFloatArrayElements(colorize, nullptr);
+    sprite->setColorize(glm::vec3(cColorize[0], cColorize[1], cColorize[2]));
+    env->ReleaseFloatArrayElements(colorize, cColorize, 0);
 }
 
 extern "C"
