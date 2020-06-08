@@ -11,6 +11,7 @@ public class Sprite {
         private String asset;
 
         // optional
+        private byte[] data = null;
         private Point position = new Point(0, 0);
         private Size size = new Size(0, 0);
         private int layer = 0;
@@ -24,6 +25,10 @@ public class Sprite {
 
         public Builder(String asset) {
             this.asset = asset;
+        }
+        public Builder data(byte[] data) {
+            this.data = data;
+            return this;
         }
         public Builder position(Point position) {
             this.position = position;
@@ -76,6 +81,7 @@ public class Sprite {
     private Sprite(Builder builder) {
         position    = builder.position;
         size        = builder.size;
+        data        = builder.data;
         layer       = builder.layer;
         depth       = builder.depth;
         opaque      = builder.opaque;
@@ -96,9 +102,17 @@ public class Sprite {
      */
     public boolean load() {
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-        if (!resourceManager.loadTexture(asset, smooth)) {
-            Log.e(LOG_TAG, "Failed to load texture");
-            return false;
+        if (data != null) {
+            if (!resourceManager.loadTexture(asset, data, smooth)) {
+                Log.e(LOG_TAG, "Failed to load texture");
+                return false;
+            }
+        }
+        else {
+            if (!resourceManager.loadTexture(asset, smooth)) {
+                Log.e(LOG_TAG, "Failed to load texture");
+                return false;
+            }
         }
 
         id = nCreateSprite(asset, gridSize.width, gridSize.height);
@@ -315,6 +329,7 @@ public class Sprite {
     private Size gridSize;
     private Point gridIndex;
     private float[] colorize;
+    private byte[] data;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);

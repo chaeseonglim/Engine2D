@@ -24,19 +24,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import androidx.annotation.RequiresApi;
-import androidx.preference.Preference;
 import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
+
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.TreeSet;
 
 public class SettingsFragment
         extends PreferenceFragmentCompat

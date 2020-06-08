@@ -272,6 +272,22 @@ public class Object implements Comparable<Object> {
         return (updatePeriodLeft == 0);
     }
 
+    /**
+     *
+     * @return
+     */
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    /**
+     *
+     * @param debugMode
+     */
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
     private PointF position;
     private float rotation;
     private int layer;
@@ -281,4 +297,6 @@ public class Object implements Comparable<Object> {
 
     private int updatePeriod;
     private int updatePeriodLeft;
+
+    private boolean debugMode = false;
 }

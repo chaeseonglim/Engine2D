@@ -1,6 +1,7 @@
 package com.lifejourney.engine2d;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
@@ -21,11 +22,10 @@ public class ResourceManager {
     /**
      *
      * @param asset
+     * @param smooth
      * @return
      */
     boolean loadTexture(String asset, boolean smooth) {
-        // NOTE: It won't give your texture object instead it's added inside the 2D engine.
-
         boolean result = false;
 
         try {
@@ -43,6 +43,26 @@ public class ResourceManager {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @param asset
+     * @param data
+     * @param smooth
+     * @return
+     */
+    boolean loadTexture(String asset, byte[] data, boolean smooth) {
+        boolean result = false;
+
+        if (!nIsTextureLoaded(asset)) {
+            result = nLoadTexture(asset, data, smooth);
+        }
+        else {
+            result = nAttachTexture(asset);
         }
 
         return result;
@@ -74,7 +94,7 @@ public class ResourceManager {
         try {
             InputStream istr = context.getAssets().open(asset);
             BitmapFactory.Options option = new BitmapFactory.Options();
-            option.outConfig = android.graphics.Bitmap.Config.ALPHA_8;
+            option.outConfig = Bitmap.Config.ALPHA_8;
             infoBitmap = new InfoBitmap(BitmapFactory.decodeStream(istr, null, option));
         } catch (IOException e) {
             Log.e(LOG_TAG, "Failed to load bitmap: " + asset);

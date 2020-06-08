@@ -176,13 +176,13 @@ Java_com_lifejourney_engine2d_ResourceManager_nLoadTexture(JNIEnv *env, jobject 
     std::string nameS = to_string(name, env);
     if (nameS.empty()) {
         ALOGW("Name is empty");
-        return false;
+        return static_cast<jboolean>(false);
     }
 
     auto imageSize = env->GetArrayLength(image);
     if (imageSize == 0) {
         ALOGW("Image is empty");
-        return false;
+        return static_cast<jboolean>(false);
     }
 
     jbyte *cImage = env->GetByteArrayElements(image, nullptr);
@@ -190,10 +190,10 @@ Java_com_lifejourney_engine2d_ResourceManager_nLoadTexture(JNIEnv *env, jobject 
             smooth, nameS) == nullptr) {
         ALOGW("Failed to load texture from memory")
         env->ReleaseByteArrayElements(image, cImage, 0);
-        return false;
+        return static_cast<jboolean>(false);
     }
     env->ReleaseByteArrayElements(image, cImage, 0);
-    return true;
+    return static_cast<jboolean>(true);
 }
 
 extern "C"

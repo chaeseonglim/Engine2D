@@ -21,13 +21,12 @@ Texture::Texture(const GLchar *file, bool alpha, bool smooth)
         mInternalFormat = GL_RGBA;
         mImageFormat = GL_RGBA;
     }
-
     if (!mSmooth) {
        mFilterMax = GL_NEAREST;
        mFilterMin = GL_NEAREST;
     }
 
-    loadFromFile(file, alpha);
+    loadFromFile(file, (GLboolean)alpha);
 }
 
 Texture::Texture(const unsigned char *memory, size_t memSize, bool alpha, bool smooth)
@@ -38,13 +37,12 @@ Texture::Texture(const unsigned char *memory, size_t memSize, bool alpha, bool s
         mInternalFormat = GL_RGBA;
         mImageFormat = GL_RGBA;
     }
-
     if (!mSmooth) {
         mFilterMax = GL_NEAREST;
         mFilterMin = GL_NEAREST;
     }
 
-    loadFromMemory(memory, memSize, alpha);
+    loadFromMemory(memory, memSize, (GLboolean)alpha);
 }
 
 Texture::~Texture()
@@ -65,8 +63,9 @@ void Texture::loadFromFile(const GLchar *file, GLboolean alpha)
 {
     // Load image
     int width, height;
-    unsigned char* image = SOIL_load_image(file, &width, &height, 0, alpha ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
 
+    unsigned char* image = SOIL_load_image(file, &width, &height, 0,
+            alpha ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
     if (image == nullptr) {
         ALOGE("Failed to load %s", file);
         return;

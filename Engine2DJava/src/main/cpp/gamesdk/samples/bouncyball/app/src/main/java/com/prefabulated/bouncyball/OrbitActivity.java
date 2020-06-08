@@ -39,6 +39,12 @@ import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +54,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class OrbitActivity extends AppCompatActivity implements Choreographer.FrameCallback, SurfaceHolder.Callback {
 

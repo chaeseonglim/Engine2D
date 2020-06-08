@@ -103,12 +103,14 @@ public class CollidableObject extends Object {
         restitution = builder.restitution;
 
         // debugging
-        lineVelocity = new Line.Builder(getPosition(),
-                new PointF(getPositionVector().add(getVelocity())))
-                .color(1.0f, 1.0f, 1.0f, 1.0f).visible(true).build();
-        circleShape =
-                new Circle.Builder(shape.getPosition(), shape.getRadius())
-                        .color(1.0f, 1.0f, 1.0f, 1.0f).visible(true).build();
+        if (isDebugMode()) {
+            lineVelocity = new Line.Builder(getPosition(),
+                    new PointF(getPositionVector().add(getVelocity())))
+                    .color(1.0f, 1.0f, 1.0f, 1.0f).visible(true).build();
+            circleShape =
+                    new Circle.Builder(shape.getPosition(), shape.getRadius())
+                            .color(1.0f, 1.0f, 1.0f, 1.0f).visible(true).build();
+        }
     }
 
     /**
@@ -159,13 +161,15 @@ public class CollidableObject extends Object {
         super.commit();
 
         // debugging
-        lineVelocity.setPoints(getPosition(),
-                new PointF(getFuturePositionVector(getUpdatePeriod()*4)));
-        lineVelocity.commit();
+        if (isDebugMode()) {
+            lineVelocity.setPoints(getPosition(),
+                    new PointF(getFuturePositionVector(getUpdatePeriod() * 4)));
+            lineVelocity.commit();
 
-        circleShape.setCenter(shape.getPosition());
-        circleShape.setRadius(shape.getRadius());
-        circleShape.commit();
+            circleShape.setCenter(shape.getPosition());
+            circleShape.setRadius(shape.getRadius());
+            circleShape.commit();
+        }
     }
 
     /**

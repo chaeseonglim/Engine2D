@@ -214,7 +214,23 @@ public class World {
         return subViews;
     }
 
-    private float desiredFPS = 10.0f;
+    /**
+     *
+     * @return
+     */
+    public float getDesiredFPS() {
+        return desiredFPS;
+    }
+
+    /**
+     *
+     * @param desiredFPS
+     */
+    public void setDesiredFPS(float desiredFPS) {
+        this.desiredFPS = desiredFPS;
+    }
+
+    private float desiredFPS = 20.0f;
     private long accumulatedTime;
     private long lastUpdateStartTime = System.currentTimeMillis();
 
