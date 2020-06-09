@@ -22,6 +22,8 @@ public class Sprite {
         private byte[] data = null;
         private String text = "";
         private float fontSize = 0.0f;
+        private int fontColor = Color.argb(255, 255, 255, 255);
+        private int bgColor = Color.argb(0, 0, 0, 0);
         private Point position = new Point(0, 0);
         private Size size = new Size(0, 0);
         private int layer = 0;
@@ -40,10 +42,12 @@ public class Sprite {
             this.name = name;
             this.data = data;
         }
-        public Builder(String name, String text, float fontSize) {
+        public Builder(String name, String text, float fontSize, int fontColor, int bgColor) {
             this.name = name;
             this.text = text;
             this.fontSize = fontSize;
+            this.fontColor = fontColor;
+            this.bgColor = bgColor;
         }
         public Builder position(Point position) {
             this.position = position;
@@ -99,6 +103,8 @@ public class Sprite {
         data        = builder.data;
         text        = builder.text;
         fontSize    = builder.fontSize;
+        fontColor   = builder.fontColor;
+        bgColor     = builder.bgColor;
         layer       = builder.layer;
         depth       = builder.depth;
         opaque      = builder.opaque;
@@ -113,33 +119,33 @@ public class Sprite {
         load();
     }
 
-    private byte[] drawTextToByteArray(String aText, float aFontSize) {
-        if (aFontSize < 8.0f)
-            aFontSize = 8.0f;
-        if (aFontSize > 500.0f)
-            aFontSize = 500.0f;
+    private byte[] drawTextToByteArray(String text, float fontSize, int fontColor) {
+        if (fontSize < 8.0f)
+            fontSize = 8.0f;
+        if (fontSize > 500.0f)
+            fontSize = 500.0f;
         Paint textPaint = new Paint();
-        textPaint.setTextSize(aFontSize);
+        textPaint.setTextSize(fontSize);
         textPaint.setFakeBoldText(false);
         textPaint.setAntiAlias(true);
-        textPaint.setARGB(255, 255, 255, 255);
+        textPaint.setColor(fontColor);
         // If a hinting is available on the platform you are developing, you should enable it (uncomment the line below).
         //textPaint.setHinting(Paint.HINTING_ON);
         textPaint.setSubpixelText(true);
         textPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
-        float realTextWidth = textPaint.measureText(aText);
+        float realTextWidth = textPaint.measureText(text);
         // Creates a new mutable bitmap, with 128px of width and height
         //int bitmapWidth = (int) (realTextWidth + 2.0f);
         //int bitmapHeight = (int) aFontSize + 2;
         Bitmap textBitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888);
-        textBitmap.eraseColor(Color.argb(0, 255, 255, 255));
+        textBitmap.eraseColor(bgColor);
         // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
         Canvas bitmapCanvas = new Canvas(textBitmap);
         // Set start drawing position to [1, base_line_position]
         // The base_line_position may vary from one font to another but it usually is equal to 75% of font size (height).
         float y = textPaint.descent() - textPaint.ascent();
-        for (String line: aText.split("\n")) {
-            bitmapCanvas.drawText(line, 1, 1 + y, textPaint);
+        for (String line: text.split("\n")) {
+            bitmapCanvas.drawText(line, 0, y, textPaint);
             y += textPaint.descent() - textPaint.ascent();
         }
 
@@ -154,7 +160,7 @@ public class Sprite {
      */
     public boolean load() {
         if (!text.isEmpty()) {
-            data = drawTextToByteArray(text, fontSize);
+            data = drawTextToByteArray(text, fontSize, fontColor);
         }
 
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
@@ -383,6 +389,8 @@ public class Sprite {
     private byte[] data;
     private String text;
     private float fontSize;
+    private int fontColor;
+    private int bgColor;
     private int id;
     private int layer;
     private Point position;
