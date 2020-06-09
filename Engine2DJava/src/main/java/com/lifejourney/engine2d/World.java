@@ -1,6 +1,7 @@
 package com.lifejourney.engine2d;
 
 import android.util.Log;
+import android.view.MotionEvent;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
@@ -10,7 +11,7 @@ public class World {
     private static final String LOG_TAG = "World";
 
     /**
-     *
+     * Should be called from subclass
      * @param worldSize
      */
     protected void initCollisionPool(Size worldSize) {
@@ -21,13 +22,28 @@ public class World {
      *
      */
     protected void close() {
-        mainView.close();
-        for (View view : subViews) {
-            view.close();
-        }
+        view.close();
+        view = null;
+    }
 
-        mainView = null;
-        subViews.clear();
+    /**
+     *
+     * @param event
+     * @return
+     */
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        if (view != null) {
+            for (Widget widget: widgets) {
+                if (widget.onTouchEvent(event)) {
+                    return true;
+                }
+            }
+            return view.onTouchEvent(event);
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -48,6 +64,7 @@ public class World {
             preupdate();
             updateViews();
             updateObjects();
+            updateWidgets();
             postupdate();
             accumulatedTime -= dt;
         }
@@ -58,8 +75,9 @@ public class World {
      */
     public void commit() {
         Engine2D.GetInstance().lockDraw();
-        commitViews();
+        commitView();
         commitObjects();
+        commitWidgets();
         Engine2D.GetInstance().unlockDraw();
     }
 
@@ -79,22 +97,16 @@ public class World {
      *
      */
     private void updateViews() {
-        Log.v(LOG_TAG, "updateView() enter");
-
-        mainView.update();
-        for (View view : subViews) {
-            view.update();
-        }
-
-        Log.v(LOG_TAG, "updateView() leave");
+        Log.v(LOG_TAG, "updateView() done");
+        view.update();
+        Log.v(LOG_TAG, "updateView() done");
     }
 
     /**
      *
      */
     private void updateObjects() {
-        Log.v(LOG_TAG, "updateObject() enter");
-
+        Log.v(LOG_TAG, "update objects...");
         PriorityQueue<Object> updateQueue = new PriorityQueue<>();
         for (Object object : objects) {
             updateQueue.offer(object);
@@ -102,23 +114,32 @@ public class World {
         while (!updateQueue.isEmpty()) {
             updateQueue.poll().update();
         }
-
-        Log.v(LOG_TAG, "collision detection enter");
+        Log.v(LOG_TAG, "update objects done");
 
         // Check collision
-        collidablePool.checkCollision();
-
-        Log.v(LOG_TAG, "collision detection leave");
-
-        Log.v(LOG_TAG, "updateObject() leave");
+        if (collidablePool != null ) {
+            Log.v(LOG_TAG, "collision detection...");
+            collidablePool.checkCollision();
+            Log.v(LOG_TAG, "collision detection done");
+        }
     }
 
     /**
      *
      */
-    private void commitViews() {
-        mainView.commit();
-        for (View view : subViews) {
+    void updateWidgets() {
+        Log.v(LOG_TAG, "update widgets...");
+        for (Widget widget: widgets) {
+            widget.update();
+        }
+        Log.v(LOG_TAG, "update widgets done");
+    }
+
+    /**
+     *
+     */
+    private void commitView() {
+        if (view != null) {
             view.commit();
         }
     }
@@ -131,6 +152,17 @@ public class World {
             object.commit();
         }
     }
+
+    /**
+     *
+     */
+    private void commitWidgets() {
+        for (Widget widget: widgets) {
+            widget.commit();
+        }
+    }
+
+
 
     /**
      *
@@ -152,7 +184,7 @@ public class World {
      *
      * @param object
      */
-    protected void addObject(CollidableObject object) {
+    public void addObject(CollidableObject object) {
         objects.add(object);
         collidablePool.addObject(object);
     }
@@ -168,58 +200,42 @@ public class World {
 
     /**
      *
-     * @param view
+     * @param widget
      */
-    protected void addMainView(View view) {
-        mainView = view;
+    public void addWidget(Widget widget) {
+        widgets.add(widget);
+    }
+
+    /**
+     *
+     * @param widget
+     */
+    public void removeWidget(Widget widget) {
+        widgets.remove(widget);
     }
 
     /**
      *
      * @param view
      */
-    protected void removeMainView(View view) {
-        mainView = null;
+    protected void addView(View view) {
+        this.view = view;
+    }
+
+    /**
+     *
+     * @param view
+     */
+    protected void removeView(View view) {
+        this.view = null;
     }
 
     /**
      *
      * @return
      */
-    protected View getMainView() {
-        return mainView;
-    }
-
-    /**
-     *
-     * @param view
-     */
-    public void addSubView(View view) {
-        subViews.add(view);
-    }
-
-    /**
-     *
-     * @param view
-     */
-    public void removeSubView(View view) {
-        subViews.remove(view);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public ArrayList<View> getSubViews() {
-        return subViews;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public float getDesiredFPS() {
-        return desiredFPS;
+    protected View getView() {
+        return view;
     }
 
     /**
@@ -230,12 +246,20 @@ public class World {
         this.desiredFPS = desiredFPS;
     }
 
+    /**
+     *
+     * @return
+     */
+    public float getDesiredFPS() {
+        return desiredFPS;
+    }
+
     private float desiredFPS = 20.0f;
     private long accumulatedTime;
     private long lastUpdateStartTime = System.currentTimeMillis();
 
-    private View mainView;
-    private ArrayList<View> subViews = new ArrayList<>();
-    protected ArrayList<Object> objects = new ArrayList<>();
+    private View view;
+    private ArrayList<Object> objects = new ArrayList<>();
+    private ArrayList<Widget> widgets = new ArrayList<>();
     private CollidablePool collidablePool;
 }

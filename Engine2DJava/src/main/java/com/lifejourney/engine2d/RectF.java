@@ -147,6 +147,26 @@ public class RectF {
 
     /**
      *
+     * @param x
+     * @param y
+     * @return
+     */
+    public void offset(float x, float y) {
+        this.x += x;
+        this.y += y;
+    }
+
+    /**
+     *
+     * @param pt
+     */
+    public void offset(Point pt) {
+        x += pt.x;
+        y += pt.y;
+    }
+
+    /**
+     *
      * @param pt
      * @return
      */

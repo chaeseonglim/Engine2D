@@ -198,6 +198,15 @@ public class Rect {
         return pt.x >= left() && pt.x < right() && pt.y >= top() && pt.y < bottom();
     }
 
+    /**
+     *
+     * @param pt
+     * @return
+     */
+    public boolean includes(PointF pt) {
+        return pt.x >= left() && pt.x < right() && pt.y >= top() && pt.y < bottom();
+    }
+
     public int x;
     public int y;
     public int width;

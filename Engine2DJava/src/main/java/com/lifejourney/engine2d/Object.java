@@ -15,7 +15,7 @@ public class Object implements Comparable<Object> {
         protected float depth = 0.0f;
         protected Sprite sprite;
         protected boolean visible = false;
-        protected int updatePeriod = 2;
+        protected int updatePeriod = 1;
 
         public Builder(PointF position) {
             this.position = position;

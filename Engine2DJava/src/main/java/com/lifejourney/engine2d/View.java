@@ -1,5 +1,7 @@
 package com.lifejourney.engine2d;
 
+import android.view.MotionEvent;
+
 public interface View {
 
     /**
@@ -26,4 +28,11 @@ public interface View {
      *
      */
     void hide();
+
+    /**
+     *
+     * @param event
+     * @return
+     */
+    boolean onTouchEvent(MotionEvent event);
 }
