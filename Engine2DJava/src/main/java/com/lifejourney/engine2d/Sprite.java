@@ -1,6 +1,14 @@
 package com.lifejourney.engine2d;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
 
 public class Sprite {
 
@@ -8,10 +16,12 @@ public class Sprite {
 
     public static class Builder {
         // required parameter
-        private String asset;
+        private String name;
 
         // optional
         private byte[] data = null;
+        private String text = "";
+        private float fontSize = 0.0f;
         private Point position = new Point(0, 0);
         private Size size = new Size(0, 0);
         private int layer = 0;
@@ -23,12 +33,17 @@ public class Sprite {
         private Size gridSize = new Size(1, 1);
         private boolean smooth = true;
 
-        public Builder(String asset) {
-            this.asset = asset;
+        public Builder(String name) {
+            this.name = name;
         }
-        public Builder data(byte[] data) {
+        public Builder(String name, byte[] data) {
+            this.name = name;
             this.data = data;
-            return this;
+        }
+        public Builder(String name, String text, float fontSize) {
+            this.name = name;
+            this.text = text;
+            this.fontSize = fontSize;
         }
         public Builder position(Point position) {
             this.position = position;
@@ -82,12 +97,14 @@ public class Sprite {
         position    = builder.position;
         size        = builder.size;
         data        = builder.data;
+        text        = builder.text;
+        fontSize    = builder.fontSize;
         layer       = builder.layer;
         depth       = builder.depth;
         opaque      = builder.opaque;
         colorize    = builder.colorize;
         rotation    = builder.rotation;
-        asset       = builder.asset;
+        name        = builder.name;
         visible     = builder.visible;
         gridSize    = builder.gridSize;
         smooth      = builder.smooth;
@@ -96,26 +113,72 @@ public class Sprite {
         load();
     }
 
+    private byte[] drawTextToByteArray(String aText, float aFontSize) {
+        if (aFontSize < 8.0f)
+            aFontSize = 8.0f;
+        if (aFontSize > 500.0f)
+            aFontSize = 500.0f;
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(aFontSize);
+        textPaint.setFakeBoldText(false);
+        textPaint.setAntiAlias(true);
+        textPaint.setARGB(255, 255, 255, 255);
+        // If a hinting is available on the platform you are developing, you should enable it (uncomment the line below).
+        //textPaint.setHinting(Paint.HINTING_ON);
+        textPaint.setSubpixelText(true);
+        textPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
+        float realTextWidth = textPaint.measureText(aText);
+        // Creates a new mutable bitmap, with 128px of width and height
+        //int bitmapWidth = (int) (realTextWidth + 2.0f);
+        //int bitmapHeight = (int) aFontSize + 2;
+        Bitmap textBitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888);
+        textBitmap.eraseColor(Color.argb(0, 255, 255, 255));
+        // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
+        Canvas bitmapCanvas = new Canvas(textBitmap);
+        // Set start drawing position to [1, base_line_position]
+        // The base_line_position may vary from one font to another but it usually is equal to 75% of font size (height).
+        float y = textPaint.descent() - textPaint.ascent();
+        for (String line: aText.split("\n")) {
+            bitmapCanvas.drawText(line, 1, 1 + y, textPaint);
+            y += textPaint.descent() - textPaint.ascent();
+        }
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream() ;
+        textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
+        return stream.toByteArray();
+    }
+
     /**
      *
      * @return
      */
     public boolean load() {
+        if (!text.isEmpty()) {
+            data = drawTextToByteArray(text, fontSize);
+        }
+
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
         if (data != null) {
-            if (!resourceManager.loadTexture(asset, data, smooth)) {
+            // In case of text, always refresh texture
+            if (!text.isEmpty()) {
+                resourceManager.releaseTexture(name);
+            }
+            if (!resourceManager.loadTexture(name, data, smooth)) {
                 Log.e(LOG_TAG, "Failed to load texture");
                 return false;
             }
+
+            // release memory
+            data = null;
         }
         else {
-            if (!resourceManager.loadTexture(asset, smooth)) {
+            if (!resourceManager.loadTexture(name, smooth)) {
                 Log.e(LOG_TAG, "Failed to load texture");
                 return false;
             }
         }
 
-        id = nCreateSprite(asset, gridSize.width, gridSize.height);
+        id = nCreateSprite(name, gridSize.width, gridSize.height);
         if (id == INVALID_ID) {
             Log.e(LOG_TAG, "Failed to create sprite");
             return false;
@@ -237,7 +300,7 @@ public class Sprite {
      * @return
      */
     public String getAsset() {
-        return asset;
+        return name;
     }
 
     /**
@@ -316,6 +379,10 @@ public class Sprite {
 
     private final int INVALID_ID = -1;
 
+    private String name;
+    private byte[] data;
+    private String text;
+    private float fontSize;
     private int id;
     private int layer;
     private Point position;
@@ -323,13 +390,11 @@ public class Sprite {
     private float opaque;
     private float rotation;
     private float depth;
-    private String asset;
     private boolean visible;
     private boolean smooth;
     private Size gridSize;
     private Point gridIndex;
     private float[] colorize;
-    private byte[] data;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);
