@@ -23,6 +23,7 @@ public class Sprite {
         private String text = "";
         private float fontSize = 0.0f;
         private int fontColor = Color.argb(255, 255, 255, 255);
+        private Paint.Align textAlign = Paint.Align.LEFT;
         private int bgColor = Color.argb(0, 0, 0, 0);
         private Point position = new Point(0, 0);
         private Size size = new Size(0, 0);
@@ -42,12 +43,13 @@ public class Sprite {
             this.name = name;
             this.data = data;
         }
-        public Builder(String name, String text, float fontSize, int fontColor, int bgColor) {
+        public Builder(String name, String text, float fontSize, int fontColor, int bgColor, Paint.Align align) {
             this.name = name;
             this.text = text;
             this.fontSize = fontSize;
             this.fontColor = fontColor;
             this.bgColor = bgColor;
+            this.textAlign = align;
         }
         public Builder position(Point position) {
             this.position = position;
@@ -100,11 +102,12 @@ public class Sprite {
     private Sprite(Builder builder) {
         position    = builder.position;
         size        = builder.size;
-        data        = builder.data;
+        rawData = builder.data;
         text        = builder.text;
         fontSize    = builder.fontSize;
         fontColor   = builder.fontColor;
         bgColor     = builder.bgColor;
+        textAlign   = builder.textAlign;
         layer       = builder.layer;
         depth       = builder.depth;
         opaque      = builder.opaque;
@@ -119,7 +122,7 @@ public class Sprite {
         load();
     }
 
-    private byte[] drawTextToByteArray(String text, float fontSize, int fontColor) {
+    private byte[] drawTextToByteArray(String text, float fontSize, int fontColor, Paint.Align align) {
         if (fontSize < 8.0f)
             fontSize = 8.0f;
         if (fontSize > 500.0f)
@@ -133,7 +136,6 @@ public class Sprite {
         //textPaint.setHinting(Paint.HINTING_ON);
         textPaint.setSubpixelText(true);
         textPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
-        float realTextWidth = textPaint.measureText(text);
         // Creates a new mutable bitmap, with 128px of width and height
         //int bitmapWidth = (int) (realTextWidth + 2.0f);
         //int bitmapHeight = (int) aFontSize + 2;
@@ -144,8 +146,25 @@ public class Sprite {
         // Set start drawing position to [1, base_line_position]
         // The base_line_position may vary from one font to another but it usually is equal to 75% of font size (height).
         float y = textPaint.descent() - textPaint.ascent();
+
+        if (align == Paint.Align.CENTER) {
+            int lineSize = text.split("\n").length;
+            y += (size.height - y * lineSize) / 2 - 5;
+        }
         for (String line: text.split("\n")) {
-            bitmapCanvas.drawText(line, 0, y, textPaint);
+            int x;
+            float realTextWidth = textPaint.measureText(line);
+            if (align == Paint.Align.LEFT) {
+                x = 0;
+            }
+            else if (align == Paint.Align.CENTER) {
+                x = (int) ((size.width - realTextWidth) / 2);
+
+            }
+            else {
+                x = (int) (size.width - realTextWidth);
+            }
+            bitmapCanvas.drawText(line, x, y, textPaint);
             y += textPaint.descent() - textPaint.ascent();
         }
 
@@ -160,22 +179,22 @@ public class Sprite {
      */
     public boolean load() {
         if (!text.isEmpty()) {
-            data = drawTextToByteArray(text, fontSize, fontColor);
+            rawData = drawTextToByteArray(text, fontSize, fontColor, textAlign);
         }
 
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-        if (data != null) {
+        if (rawData != null) {
             // In case of text, always refresh texture
             if (!text.isEmpty()) {
                 resourceManager.releaseTexture(name);
             }
-            if (!resourceManager.loadTexture(name, data, smooth)) {
+            if (!resourceManager.loadTexture(name, rawData, smooth)) {
                 Log.e(LOG_TAG, "Failed to load texture");
                 return false;
             }
 
             // release memory
-            data = null;
+            rawData = null;
         }
         else {
             if (!resourceManager.loadTexture(name, smooth)) {
@@ -386,11 +405,12 @@ public class Sprite {
     private final int INVALID_ID = -1;
 
     private String name;
-    private byte[] data;
+    private byte[] rawData;
     private String text;
     private float fontSize;
     private int fontColor;
     private int bgColor;
+    private Paint.Align textAlign;
     private int id;
     private int layer;
     private Point position;

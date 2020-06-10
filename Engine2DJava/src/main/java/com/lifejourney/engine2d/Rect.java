@@ -207,6 +207,14 @@ public class Rect {
         return pt.x >= left() && pt.x < right() && pt.y >= top() && pt.y < bottom();
     }
 
+    /**
+     *
+     * @return
+     */
+    public Size size() {
+        return new Size(width, height);
+    }
+
     public int x;
     public int y;
     public int width;

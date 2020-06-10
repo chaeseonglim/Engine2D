@@ -1,9 +1,9 @@
 package com.lifejourney.engine2d;
 
-import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.PriorityQueue;
 
 public class World {
@@ -33,12 +33,18 @@ public class World {
      */
     public boolean onTouchEvent(MotionEvent event)
     {
-        if (view != null) {
-            for (Widget widget: widgets) {
-                if (widget.onTouchEvent(event)) {
-                    return true;
-                }
+        PriorityQueue<Widget> widgetSorted = new PriorityQueue<>();
+        for (Widget widget : widgets) {
+            widgetSorted.offer(widget);
+        }
+        while (!widgetSorted.isEmpty()) {
+            Widget widget = widgetSorted.poll();
+            assert widget != null;
+            if (widget.onTouchEvent(event)) {
+                return true;
             }
+        }
+        if (view != null) {
             return view.onTouchEvent(event);
         }
         else {
@@ -97,42 +103,34 @@ public class World {
      *
      */
     private void updateViews() {
-        Log.v(LOG_TAG, "updateView() done");
         view.update();
-        Log.v(LOG_TAG, "updateView() done");
     }
 
     /**
      *
      */
     private void updateObjects() {
-        Log.v(LOG_TAG, "update objects...");
-        PriorityQueue<Object> updateQueue = new PriorityQueue<>();
+        PriorityQueue<Object> sortedObjects = new PriorityQueue<>();
         for (Object object : objects) {
-            updateQueue.offer(object);
+            sortedObjects.offer(object);
         }
-        while (!updateQueue.isEmpty()) {
-            updateQueue.poll().update();
+        while (!sortedObjects.isEmpty()) {
+            Objects.requireNonNull(sortedObjects.poll()).update();
         }
-        Log.v(LOG_TAG, "update objects done");
 
         // Check collision
         if (collidablePool != null ) {
-            Log.v(LOG_TAG, "collision detection...");
             collidablePool.checkCollision();
-            Log.v(LOG_TAG, "collision detection done");
         }
     }
 
     /**
      *
      */
-    void updateWidgets() {
-        Log.v(LOG_TAG, "update widgets...");
+    private void updateWidgets() {
         for (Widget widget: widgets) {
             widget.update();
         }
-        Log.v(LOG_TAG, "update widgets done");
     }
 
     /**
@@ -161,8 +159,6 @@ public class World {
             widget.commit();
         }
     }
-
-
 
     /**
      *

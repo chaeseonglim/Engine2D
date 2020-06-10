@@ -132,12 +132,22 @@ public class Engine2D {
 
     /**
      *
-     * @param xy
+     * @param pt
      * @return
      */
-    public float[] translateScreenToGameCoord(float[] xy) {
-        return new float[] { xy[0] / screenSize.width * viewport.width + viewport.x,
-                xy[1] / screenSize.height * viewport.height  + viewport.y };
+    public PointF translateScreenToGameCoord(PointF pt) {
+        return new PointF(pt.x / screenSize.width * viewport.width + viewport.x,
+            pt.y / screenSize.height * viewport.height + viewport.y);
+    }
+
+    /**
+     *
+     * @param pt
+     * @return
+     */
+    public PointF translateScreenToWidgetCoord(PointF pt) {
+        return new PointF(pt.x / screenSize.width * viewport.width,
+                pt.y / screenSize.height * viewport.height);
     }
 
     /**

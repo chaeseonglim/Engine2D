@@ -134,8 +134,8 @@ public class CollidableObject extends Object {
     @Override
     public void update() {
         // Calculate next velocity
-        setVelocity(estimateFutureVelocityUsingForce(1, force));
-        setAngularVelocity(estimateFutureAngularVelocityUsingTorque(1, torque));
+        setVelocity(estimateFutureVelocityUsingForce(force));
+        setAngularVelocity(estimateFutureAngularVelocityUsingTorque(torque));
 
         // Update position & rotatio
         getPosition().add(new PointF(velocity));
@@ -174,42 +174,32 @@ public class CollidableObject extends Object {
 
     /**
      *
-     * @param numberOfUpdate
      * @param force
      * @return
      */
-    private Vector2D estimateFutureVelocityUsingForce(int numberOfUpdate, Vector2D force) {
+    private Vector2D estimateFutureVelocityUsingForce(Vector2D force) {
         Vector2D acceleration = force.clone().truncate(maxForce).multiply(invMass)
                 .divide(getUpdatePeriod());
         Vector2D velocity = getVelocity().clone();
 
-        for (int nUpdate = 0; nUpdate < numberOfUpdate; ++nUpdate) {
-            velocity.multiply(1.0f - friction);
-            if (nUpdate < getUpdatePeriod()) {
-                velocity.add(acceleration);
-            }
-        }
+        velocity.multiply(1.0f - friction);
+        velocity.add(acceleration);
 
         return velocity;
     }
 
     /**
      *
-     * @param numberOfUpdate
      * @param torque
      * @return
      */
-    private float estimateFutureAngularVelocityUsingTorque(int numberOfUpdate, float torque) {
+    private float estimateFutureAngularVelocityUsingTorque(float torque) {
         torque = Math.min(maxTorque, torque);
         float angularAcceleration = torque * invInertia / getUpdatePeriod();
         float angularVelocity = getAngularVelocity();
 
-        for (int nUpdate = 0; nUpdate < numberOfUpdate; ++nUpdate) {
-            angularVelocity *= 1.0f - restitution;
-            if (nUpdate < getUpdatePeriod()) {
-                angularVelocity += angularAcceleration;
-            }
-        }
+        angularVelocity *= 1.0f - restitution;
+        angularVelocity += angularAcceleration;
 
         return angularVelocity;
     }
