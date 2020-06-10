@@ -8,7 +8,10 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.Log;
 
+import androidx.core.util.Pair;
+
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 public class Sprite {
 
@@ -100,24 +103,25 @@ public class Sprite {
     };
 
     private Sprite(Builder builder) {
-        position    = builder.position;
-        size        = builder.size;
-        rawData = builder.data;
-        text        = builder.text;
-        fontSize    = builder.fontSize;
-        fontColor   = builder.fontColor;
-        bgColor     = builder.bgColor;
-        textAlign   = builder.textAlign;
-        layer       = builder.layer;
-        depth       = builder.depth;
-        opaque      = builder.opaque;
-        colorize    = builder.colorize;
-        rotation    = builder.rotation;
-        name        = builder.name;
-        visible     = builder.visible;
-        gridSize    = builder.gridSize;
-        smooth      = builder.smooth;
-        gridIndex   = new Point();
+        position        = builder.position;
+        size            = builder.size;
+        rawData         = builder.data;
+        text            = builder.text;
+        fontSize        = builder.fontSize;
+        fontColor       = builder.fontColor;
+        bgColor         = builder.bgColor;
+        textAlign       = builder.textAlign;
+        layer           = builder.layer;
+        depth           = builder.depth;
+        opaque          = builder.opaque;
+        colorize        = builder.colorize;
+        rotation        = builder.rotation;
+        name            = builder.name;
+        visible         = builder.visible;
+        gridSize        = builder.gridSize;
+        smooth          = builder.smooth;
+        animationList   = new ArrayList<>();
+        animationList.add(new Pair<>(new Point(0, 0), 1));
 
         load();
     }
@@ -236,8 +240,9 @@ public class Sprite {
      *
      */
     public void commit() {
+        Point grid = getNextGridIndex();
         nSetProperties(id, position.x, position.y, size.width, size.height, layer, depth, opaque,
-                colorize, rotation, visible, gridIndex.x, gridIndex.y);
+                colorize, rotation, visible, grid.x, grid.y);
     }
 
     /**
@@ -371,7 +376,25 @@ public class Sprite {
      * @return
      */
     public Point getGridIndex() {
-        return gridIndex;
+        if (animationList.size() <= currentAnimationIndex) {
+            return new Point(0, 0);
+        }
+        return animationList.get(currentAnimationIndex).first;
+    }
+
+    private Point getNextGridIndex() {
+        if (animationList.size() <= currentAnimationIndex) {
+            return new Point(0, 0);
+        }
+
+        int maxStayingTime = animationList.get(currentAnimationIndex).second;
+
+        if (++currentAnimationStayingTime >= maxStayingTime) {
+            currentAnimationIndex = (currentAnimationIndex + 1) % animationList.size();
+            currentAnimationStayingTime = 0;
+        }
+
+        return animationList.get(currentAnimationIndex).first;
     }
 
     /**
@@ -379,7 +402,38 @@ public class Sprite {
      * @param gridIndex
      */
     public void setGridIndex(Point gridIndex) {
-        this.gridIndex = gridIndex;
+        animationList.clear();
+        animationList.add(new Pair<>(gridIndex, 1));
+        this.currentAnimationIndex = 0;
+        this.currentAnimationStayingTime = 0;
+    }
+
+    /**
+     *
+     * @param animationList
+     */
+    public void setAnimationIndex(ArrayList<Pair<Point, Integer>> animationList) {
+        this.animationList = animationList;
+        this.currentAnimationIndex = 0;
+        this.currentAnimationStayingTime = 0;
+    }
+
+    /**
+     *
+     * @param gridIndex
+     * @param stayingTime
+     */
+    public void addAnimationIndex(Point gridIndex, int stayingTime) {
+        this.animationList.add(new Pair<>(gridIndex, stayingTime));
+        this.currentAnimationIndex = 0;
+        this.currentAnimationStayingTime = 0;
+    }
+
+    /**
+     *
+     */
+    public void clearAnimationIndex() {
+        this.animationList.clear();
     }
 
     /**
@@ -421,8 +475,10 @@ public class Sprite {
     private boolean visible;
     private boolean smooth;
     private Size gridSize;
-    private Point gridIndex;
     private float[] colorize;
+    private ArrayList<Pair<Point, Integer>> animationList;
+    private int currentAnimationIndex = 0;
+    private int currentAnimationStayingTime = 0;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);
