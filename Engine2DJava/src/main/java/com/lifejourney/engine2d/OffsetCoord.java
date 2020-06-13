@@ -132,7 +132,7 @@ public class OffsetCoord {
         OffsetCoord.hexSize = hexSize;
     }
 
-    private static final double SQRT3 = Math.sqrt(3);
+    private static final float SQRT3 = (float)Math.sqrt(3);
     private static int hexSize = 0;
 
     private int x;

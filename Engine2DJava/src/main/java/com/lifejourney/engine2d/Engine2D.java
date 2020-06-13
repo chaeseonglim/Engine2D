@@ -83,7 +83,6 @@ public class Engine2D {
      */
     public void setViewport(Rect viewport) {
         this.viewport = viewport;
-        nEngineSetViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
 
     /**
@@ -92,6 +91,13 @@ public class Engine2D {
      */
     public Rect getViewport() {
         return viewport;
+    }
+
+    /**
+     *
+     */
+    public void commitViewport() {
+        nEngineSetViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
 
     /**

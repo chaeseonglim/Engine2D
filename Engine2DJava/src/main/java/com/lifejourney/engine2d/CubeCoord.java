@@ -21,6 +21,10 @@ public class CubeCoord {
         this.z = z;
     }
 
+    public CubeCoord(float x, float y, float z) {
+        round(x, y, z);
+    }
+
     public CubeCoord(OffsetCoord offsetCoord) {
         fromOffsetCoord(offsetCoord);
     }
@@ -28,7 +32,6 @@ public class CubeCoord {
     public CubeCoord(Point screenCoord) {
         fromScreenCoord(screenCoord);
     }
-
 
     /**
      *
@@ -54,6 +57,36 @@ public class CubeCoord {
     @Override
     public int hashCode() {
         return x + (y << 5) + (z << 10);
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @param z
+     */
+    private void round(float x, float y, float z) {
+        float rx = Math.round(x);
+        float ry = Math.round(y);
+        float rz = Math.round(z);
+
+        float xDiff = Math.abs(rx - x);
+        float yDiff = Math.abs(ry - y);
+        float zDiff = Math.abs(rz - z);
+
+        if (xDiff > yDiff && xDiff > zDiff) {
+            rx = - ry - rz;
+        }
+        else if (yDiff > zDiff) {
+            ry = - rx - rz;
+        }
+        else {
+            rz = -rx - ry;
+        }
+
+        this.x = (int)rx;
+        this.y = (int)ry;
+        this.z = (int)rz;
     }
 
     /**
@@ -90,9 +123,11 @@ public class CubeCoord {
      * @param pt
      */
     public void fromScreenCoord(Point pt) {
-        x = (int) ((SQRT3 / 3 * pt.x - 1.0 / 3 * pt.y) / hexSize);
-        z = (int) ((2.0 / 3 * pt.y) / hexSize);
-        y = -x-z;
+        float x = (SQRT3 / 3 * pt.x - 1.0f / 3 * pt.y) / hexSize;
+        float z = (2.0f / 3 * pt.y) / hexSize;
+        float y = -x-z;
+
+        round(x, y, z);
     }
 
     /**
@@ -174,7 +209,7 @@ public class CubeCoord {
         CubeCoord.hexSize = hexSize;
     }
 
-    private static final double SQRT3 = Math.sqrt(3);
+    private static final float SQRT3 = (float)Math.sqrt(3);
     private static int hexSize = 0;
 
     private int x;

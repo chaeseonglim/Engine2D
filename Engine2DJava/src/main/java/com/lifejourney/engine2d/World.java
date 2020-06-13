@@ -15,6 +15,7 @@ public class World {
      * @param worldSize
      */
     protected void initCollisionPool(Size worldSize) {
+
         collidablePool = new CollidablePool(worldSize);
     }
 
@@ -22,6 +23,7 @@ public class World {
      *
      */
     protected void close() {
+
         view.close();
         view = null;
     }
@@ -31,8 +33,8 @@ public class World {
      * @param event
      * @return
      */
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
+
         PriorityQueue<Widget> widgetSorted = new PriorityQueue<>();
         for (Widget widget : widgets) {
             widgetSorted.offer(widget);
@@ -56,6 +58,7 @@ public class World {
      *
      */
     public void update() {
+
         // Check the time elapsed since last update
         long currentTime = System.currentTimeMillis();
         accumulatedTime += currentTime - lastUpdateStartTime;
@@ -80,10 +83,12 @@ public class World {
      *
      */
     public void commit() {
+
         Engine2D.GetInstance().lockDraw();
         commitView();
         commitObjects();
         commitWidgets();
+        commitViewport();
         Engine2D.GetInstance().unlockDraw();
     }
 
@@ -91,18 +96,21 @@ public class World {
      *
      */
     protected void preupdate() {
+
     }
 
     /**
      *
      */
     protected void postupdate() {
+
     }
 
     /**
      *
      */
     private void updateViews() {
+
         view.update();
     }
 
@@ -110,6 +118,7 @@ public class World {
      *
      */
     private void updateObjects() {
+
         PriorityQueue<Object> sortedObjects = new PriorityQueue<>();
         for (Object object : objects) {
             sortedObjects.offer(object);
@@ -128,6 +137,7 @@ public class World {
      *
      */
     private void updateWidgets() {
+
         for (Widget widget: widgets) {
             widget.update();
         }
@@ -137,6 +147,7 @@ public class World {
      *
      */
     private void commitView() {
+
         if (view != null) {
             view.commit();
         }
@@ -146,6 +157,7 @@ public class World {
      *
      */
     private void commitObjects() {
+
         for (Object object : objects) {
             object.commit();
         }
@@ -155,6 +167,7 @@ public class World {
      *
      */
     private void commitWidgets() {
+
         for (Widget widget: widgets) {
             widget.commit();
         }
@@ -162,9 +175,18 @@ public class World {
 
     /**
      *
+     */
+    private void commitViewport() {
+
+        Engine2D.GetInstance().commitViewport();
+    }
+
+    /**
+     *
      * @param object
      */
     public void addObject(Object object) {
+
         objects.add(object);
     }
 
@@ -173,6 +195,7 @@ public class World {
      * @param object
      */
     public void removeObject(Object object) {
+
         objects.remove(object);
     }
 
@@ -181,6 +204,7 @@ public class World {
      * @param object
      */
     public void addObject(CollidableObject object) {
+
         objects.add(object);
         collidablePool.addObject(object);
     }
@@ -190,6 +214,7 @@ public class World {
      * @param object
      */
     public void removeObject(CollidableObject object) {
+
         collidablePool.removeObject(object);
         objects.remove(object);
     }
@@ -199,6 +224,7 @@ public class World {
      * @param widget
      */
     public void addWidget(Widget widget) {
+
         widgets.add(widget);
     }
 
@@ -207,6 +233,7 @@ public class World {
      * @param widget
      */
     public void removeWidget(Widget widget) {
+
         widgets.remove(widget);
     }
 
@@ -215,6 +242,7 @@ public class World {
      * @param view
      */
     protected void addView(View view) {
+
         this.view = view;
     }
 
@@ -223,6 +251,7 @@ public class World {
      * @param view
      */
     protected void removeView(View view) {
+
         this.view = null;
     }
 
@@ -231,6 +260,7 @@ public class World {
      * @return
      */
     protected View getView() {
+
         return view;
     }
 
@@ -239,6 +269,7 @@ public class World {
      * @param desiredFPS
      */
     public void setDesiredFPS(float desiredFPS) {
+
         this.desiredFPS = desiredFPS;
     }
 
@@ -247,6 +278,7 @@ public class World {
      * @return
      */
     public float getDesiredFPS() {
+
         return desiredFPS;
     }
 
