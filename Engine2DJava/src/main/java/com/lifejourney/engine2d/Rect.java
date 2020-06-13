@@ -139,6 +139,38 @@ public class Rect {
 
     /**
      *
+     * @return
+     */
+    public Point topLeft() {
+        return new Point(left(), top());
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Point topRight() {
+        return new Point(right(), top());
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Point bottomLeft() {
+        return new Point(left(), bottom());
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Point bottomRight() {
+        return new Point(right(), bottom());
+    }
+
+    /**
+     *
      * @param x
      * @param y
      * @param width
