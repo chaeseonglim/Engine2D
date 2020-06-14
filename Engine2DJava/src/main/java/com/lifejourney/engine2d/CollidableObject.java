@@ -5,8 +5,8 @@ public class CollidableObject extends Object {
     static final String LOG_TAG = "CollidableObject";
 
     @SuppressWarnings("unchecked")
-    public static class Builder<T extends CollidableObject.Builder<T>>
-            extends Object.Builder<T> {
+    public static class Builder<T extends CollidableObject.Builder<T>> extends Object.Builder<T> {
+
         // optional parameter
         protected Shape shape = new Shape();
         protected Vector2D force = new Vector2D();
@@ -83,6 +83,7 @@ public class CollidableObject extends Object {
     }
 
     protected CollidableObject(Builder builder) {
+
         super(builder);
 
         velocity = builder.velocity;
@@ -118,6 +119,7 @@ public class CollidableObject extends Object {
      */
     @Override
     public void close() {
+
         super.close();
 
         if (lineVelocity != null) {
@@ -133,6 +135,7 @@ public class CollidableObject extends Object {
      */
     @Override
     public void update() {
+
         // Calculate next velocity
         setVelocity(estimateFutureVelocityUsingForce(force));
         setAngularVelocity(estimateFutureAngularVelocityUsingTorque(torque));
@@ -158,6 +161,7 @@ public class CollidableObject extends Object {
      */
     @Override
     public void commit() {
+
         super.commit();
 
         // debugging
@@ -178,6 +182,7 @@ public class CollidableObject extends Object {
      * @return
      */
     private Vector2D estimateFutureVelocityUsingForce(Vector2D force) {
+
         Vector2D acceleration = force.clone().truncate(maxForce).multiply(invMass)
                 .divide(getUpdatePeriod());
         Vector2D velocity = getVelocity().clone();
@@ -194,6 +199,7 @@ public class CollidableObject extends Object {
      * @return
      */
     private float estimateFutureAngularVelocityUsingTorque(float torque) {
+
         torque = Math.min(maxTorque, torque);
         float angularAcceleration = torque * invInertia / getUpdatePeriod();
         float angularVelocity = getAngularVelocity();
@@ -209,6 +215,7 @@ public class CollidableObject extends Object {
      * @param alpha
      */
     public void offset(PointF alpha) {
+
         getPosition().offset(alpha);
     }
 
@@ -216,6 +223,7 @@ public class CollidableObject extends Object {
      *
      */
     private void stopMoving() {
+
         velocity.reset();
     }
 
@@ -223,6 +231,7 @@ public class CollidableObject extends Object {
      *
      */
     private void stopRotating() {
+
         angularVelocity = 0.0f;
     }
 
@@ -230,6 +239,7 @@ public class CollidableObject extends Object {
      *
      */
     public void stop() {
+
         stopMoving();
         stopRotating();
     }
@@ -240,6 +250,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public Vector2D getFuturePositionVector(int numberOfUpdate) {
+
         Vector2D position = getPositionVector();
         Vector2D velocity = getVelocity();
 
@@ -257,6 +268,7 @@ public class CollidableObject extends Object {
      * @return
      */
     protected Vector2D getVirtualPositionVector(float direction, int numberOfUpdate) {
+
         Vector2D position = getPositionVector();
         Vector2D virtualVelocity = new Vector2D(direction).multiply(getVelocity().length());
 
@@ -272,6 +284,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public Vector2D getVelocity() {
+
         return velocity;
     }
 
@@ -280,6 +293,7 @@ public class CollidableObject extends Object {
      * @param velocity
      */
     public void setVelocity(Vector2D velocity) {
+
         this.velocity = velocity;
     }
 
@@ -288,6 +302,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public Vector2D getForwardVector() {
+
         return velocity.clone().normalize();
     }
 
@@ -296,6 +311,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getAngularVelocity() {
+
         return angularVelocity;
     }
 
@@ -304,6 +320,7 @@ public class CollidableObject extends Object {
      * @param angularVelocity
      */
     public void setAngularVelocity(float angularVelocity) {
+
         this.angularVelocity = angularVelocity;
     }
 
@@ -312,6 +329,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getMaxVelocity() {
+
         return maxVelocity;
     }
 
@@ -320,6 +338,7 @@ public class CollidableObject extends Object {
      * @param maxVelocity
      */
     public void setMaxVelocity(float maxVelocity) {
+
         this.maxVelocity = maxVelocity;
     }
 
@@ -328,6 +347,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getMaxAngularVelocity() {
+
         return maxAngularVelocity;
     }
 
@@ -336,6 +356,7 @@ public class CollidableObject extends Object {
      * @param maxAngularVelocity
      */
     public void setMaxAngularVelocity(float maxAngularVelocity) {
+
         this.maxAngularVelocity = maxAngularVelocity;
     }
 
@@ -344,6 +365,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public Shape getShape() {
+
         return shape;
     }
 
@@ -352,6 +374,7 @@ public class CollidableObject extends Object {
      * @param shape
      */
     public void setShape(Shape shape) {
+
         this.shape = shape;
     }
 
@@ -360,6 +383,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public Vector2D getForce() {
+
         return force;
     }
 
@@ -368,6 +392,7 @@ public class CollidableObject extends Object {
      * @param force
      */
     public void setForce(Vector2D force) {
+
         this.force = force;
     }
 
@@ -376,6 +401,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getTorque() {
+
         return torque;
     }
 
@@ -384,6 +410,7 @@ public class CollidableObject extends Object {
      * @param torque
      */
     public void setTorque(float torque) {
+
         this.torque = torque;
     }
 
@@ -392,6 +419,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getMass() {
+
         return mass;
     }
 
@@ -400,6 +428,7 @@ public class CollidableObject extends Object {
      * @param mass
      */
     public void setMass(float mass) {
+
         this.mass = mass;
         if (mass == 0.0f)
             invMass = 0.0f;
@@ -412,6 +441,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getInvMass() {
+
         return invMass;
     }
 
@@ -420,6 +450,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getInertia() {
+
         return inertia;
     }
 
@@ -428,6 +459,7 @@ public class CollidableObject extends Object {
      * @param inertia
      */
     public void setInertia(float inertia) {
+
         this.inertia = inertia;
         if (inertia == 0.0f)
             invInertia = 0.0f;
@@ -439,7 +471,8 @@ public class CollidableObject extends Object {
      *
      * @return
      */
-    public float getFriction() {
+    public float getFriction()
+    {
         return friction;
     }
 
@@ -448,6 +481,7 @@ public class CollidableObject extends Object {
      * @param friction
      */
     public void setFriction(float friction) {
+
         this.friction = friction;
     }
 
@@ -456,6 +490,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public float getRestitution() {
+
         return restitution;
     }
 
@@ -464,6 +499,7 @@ public class CollidableObject extends Object {
      * @param restitution
      */
     public void setRestitution(float restitution) {
+
         this.restitution = restitution;
     }
 
@@ -472,6 +508,7 @@ public class CollidableObject extends Object {
      * @param force
      */
     public void addForce(Vector2D force) {
+
         this.force.add(force);
     }
 
@@ -481,6 +518,7 @@ public class CollidableObject extends Object {
      * @param pos
      */
     public void addForce(Vector2D force, Vector2D pos) {
+
         addForce(force);
         addTorque(pos.cross(force));
     }
@@ -490,6 +528,7 @@ public class CollidableObject extends Object {
      * @param torque
      */
     public void addTorque(float torque) {
+
         this.torque += torque;
     }
 
@@ -498,6 +537,7 @@ public class CollidableObject extends Object {
      * @return
      */
     boolean isCollisionChecked() {
+
         return collisionChecked;
     }
 
@@ -506,6 +546,7 @@ public class CollidableObject extends Object {
      * @param collisionChecked
      */
     void setCollisionChecked(boolean collisionChecked) {
+
         this.collisionChecked = collisionChecked;
     }
 
@@ -522,6 +563,7 @@ public class CollidableObject extends Object {
      * @param collisionEnabled
      */
     public void setCollisionEnabled(boolean collisionEnabled) {
+
         this.collisionEnabled = collisionEnabled;
     }
 
@@ -530,6 +572,7 @@ public class CollidableObject extends Object {
      * @return
      */
     public boolean isCollisionEnabled() {
+
         return collisionEnabled;
     }
 

@@ -4,6 +4,8 @@ import androidx.annotation.Nullable;
 
 public class OffsetCoord {
 
+    private final static String LOG_TAG = "OffsetCoord";
+
     public OffsetCoord() {
         this.x = 0;
         this.y = 0;
@@ -62,7 +64,7 @@ public class OffsetCoord {
      * @param cubeCoord
      */
     public void fromCubeCoord(CubeCoord cubeCoord) {
-        x = cubeCoord.getX() + (cubeCoord.getZ() - (cubeCoord.getZ() & 1));
+        x = cubeCoord.getX() + (cubeCoord.getZ() - (cubeCoord.getZ() & 1)) / 2;
         y = cubeCoord.getZ();
     }
 

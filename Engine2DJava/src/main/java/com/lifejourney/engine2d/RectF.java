@@ -16,6 +16,13 @@ public class RectF {
         this.height = height;
     }
 
+    public RectF(PointF pt, Size sz) {
+        this.x = pt.x;
+        this.y = pt.y;
+        this.width = sz.width;
+        this.height = sz.height;
+    }
+
     public RectF(RectF rect) {
         x = rect.x;
         y = rect.y;

@@ -19,6 +19,14 @@ public class Size {
 
     /**
      *
+     * @return
+     */
+    public Size clone() {
+        return new Size(this);
+    }
+
+    /**
+     *
      * @param w
      * @param h
      * @return

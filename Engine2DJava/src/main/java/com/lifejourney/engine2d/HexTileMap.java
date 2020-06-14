@@ -8,18 +8,19 @@ public abstract class HexTileMap {
     private final String LOG_TAG = "HexTileMap";
 
     public HexTileMap(int hexSize) {
-        tileSize = new Size((int) Math.round(Math.sqrt(3) * hexSize), 2 * hexSize);
-        sprites = new HashMap<>();
+
+        setHexSize(hexSize);
     }
 
     /**
      *
      */
     public void close() {
+
         for (HashMap.Entry<OffsetCoord, Sprite> entry: sprites.entrySet()) {
             entry.getValue().close();
         }
-        sprites = new HashMap<>();
+        sprites.clear();
     }
 
     /**
@@ -27,22 +28,29 @@ public abstract class HexTileMap {
      * @return
      */
     private Rect getRegionToCache() {
+
         Rect cachedRegion = new Rect(Engine2D.GetInstance().getViewport());
 
         // Adding gaps to viewport for caching more sprites around
-        cachedRegion.x = Math.max(0, cachedRegion.x - tileSize.width * 2);
-        cachedRegion.width += tileSize.width * 4;
-        cachedRegion.y = Math.max(0, cachedRegion.y - tileSize.height * 2);
-        cachedRegion.height += tileSize.height * 4;
+        cachedRegion.x = Math.max(0, cachedRegion.x - tileSize.width * cacheMargin);
+        cachedRegion.width += tileSize.width * cacheMargin * 2;
+        cachedRegion.y = Math.max(0, cachedRegion.y - tileSize.height * cacheMargin);
+        cachedRegion.height += tileSize.height * cacheMargin * 2;
         return cachedRegion;
     }
 
+    /**
+     *
+     * @param offsetCoord
+     * @return
+     */
     protected abstract Sprite getTileSprite(OffsetCoord offsetCoord);
 
     /**
      *
      */
     private void removeUnusedSprites() {
+
         Rect regionToCache = getRegionToCache();
 
         Iterator<HashMap.Entry<OffsetCoord, Sprite>> iter = sprites.entrySet().iterator();
@@ -59,17 +67,16 @@ public abstract class HexTileMap {
         }
     }
 
-
+    /**
+     *
+     */
     public void update() {
-
-        OffsetCoord.setHexSize(tileSize.height / 2);
-        CubeCoord.setHexSize(tileSize.height / 2);
 
         // clean up unused spries
         removeUnusedSprites();
 
         // build up sprites
-        Size trackDataSize = getMapSize();
+        Size mapSize = getMapSize();
         Rect cachedRegion = getRegionToCache();
 
         OffsetCoord topLeft = new OffsetCoord();
@@ -77,8 +84,8 @@ public abstract class HexTileMap {
         topLeft.fromScreenCoord(cachedRegion.topLeft());
         bottomRight.fromScreenCoord(cachedRegion.bottomRight());
 
-        for (int y = Math.max(topLeft.getY(), 0); y < Math.min(bottomRight.getY(), trackDataSize.height); ++y) {
-            for (int x = Math.max(topLeft.getX(), 0); x < Math.min(bottomRight.getX(), trackDataSize.width); ++x) {
+        for (int y = Math.max(topLeft.getY(), 0); y < Math.min(bottomRight.getY(), mapSize.height); ++y) {
+            for (int x = Math.max(topLeft.getX(), 0); x < Math.min(bottomRight.getX(), mapSize.width); ++x) {
                 OffsetCoord offsetCoord = new OffsetCoord(x, y);
                 if (sprites.get(offsetCoord) == null) {
                     sprites.put(offsetCoord, getTileSprite(offsetCoord));
@@ -181,8 +188,38 @@ public abstract class HexTileMap {
         sprites.put(offsetCoord, sprite);
     }
 
+    /**
+     *
+     * @param hexSize
+     */
+    public void setHexSize(int hexSize) {
+        OffsetCoord.setHexSize(hexSize);
+        CubeCoord.setHexSize(hexSize);
+
+        tileSize = new Size((int) Math.round(SQRT3 * hexSize), 2 * hexSize);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getCacheMargin() {
+        return cacheMargin;
+    }
+
+    /**
+     *
+     * @param cacheMargin
+     */
+    public void setCacheMargin(int cacheMargin) {
+        this.cacheMargin = cacheMargin;
+    }
+
+    private final static float SQRT3 = (float) Math.sqrt(3.0);
+
     private byte[][] mapData;
-    private HashMap<OffsetCoord, Sprite> sprites;
+    private HashMap<OffsetCoord, Sprite> sprites = new HashMap<>();
     private Size mapSize;
     private Size tileSize;
+    private int cacheMargin = 2;
 }

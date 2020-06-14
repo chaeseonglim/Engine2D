@@ -1,5 +1,7 @@
 package com.lifejourney.engine2d;
 
+import java.util.ArrayList;
+
 public class Object implements Comparable<Object> {
 
     private static String LOG_TAG = "Object";
@@ -11,29 +13,39 @@ public class Object implements Comparable<Object> {
 
         // Optional parameters
         protected float rotation = 0.0f;
-        protected int layer = 1;
-        protected float depth = 0.0f;
-        protected Sprite sprite;
+        protected ArrayList<Sprite> sprites = new ArrayList<>();
+        protected ArrayList<Boolean> spritesAutoUpdate = new ArrayList<>();
         protected boolean visible = false;
         protected int updatePeriod = 1;
+        protected int priority = 0;
 
         public Builder(PointF position) {
             this.position = position;
-        }
-        public T depth(float depth) {
-            this.depth = depth;
-            return (T)this;
         }
         public T rotation(float rotation) {
             this.rotation = rotation;
             return (T)this;
         }
         public T sprite(Sprite sprite) {
-            this.sprite = sprite;
+            this.sprites.add(sprite);
+            this.spritesAutoUpdate.add(true);
             return (T)this;
         }
-        public T layer(int layer) {
-            this.layer = layer;
+        public T sprite(Sprite sprite, boolean autoUpdate) {
+            this.sprites.add(sprite);
+            this.spritesAutoUpdate.add(autoUpdate);
+            return (T)this;
+        }
+        public T sprites(ArrayList<Sprite> sprites) {
+            this.sprites = sprites;
+            for (int i = 0; i < sprites.size(); ++i) {
+                this.spritesAutoUpdate.add(true);
+            }
+            return (T)this;
+        }
+        public T sprites(ArrayList<Sprite> sprites, ArrayList<Boolean> spritesAutoUpdate) {
+            this.sprites = sprites;
+            this.spritesAutoUpdate = spritesAutoUpdate;
             return (T)this;
         }
         public T visible(boolean visible) {
@@ -44,19 +56,24 @@ public class Object implements Comparable<Object> {
             this.updatePeriod = updatePeriod;
             return (T)this;
         }
+        public T priority(int priority) {
+            this.priority = priority;
+            return (T)this;
+        }
         public Object build() {
             return new Object(this);
         }
     }
 
     protected Object(Builder builder) {
+
         position = builder.position;
         rotation = builder.rotation;
-        layer = builder.layer;
-        depth = builder.depth;
         visible = builder.visible;
-        sprite = builder.sprite;
+        sprites = builder.sprites;
+        spritesAutoUpdate = builder.spritesAutoUpdate;
         updatePeriod = builder.updatePeriod;
+        priority = builder.priority;
         updatePeriodLeft = (int) (Math.random()%updatePeriod);
     }
 
@@ -64,8 +81,13 @@ public class Object implements Comparable<Object> {
      *
      */
     public void close() {
-        if (sprite != null) {
-            sprite.close();
+
+        if (sprites != null) {
+            for (Sprite sprite: sprites) {
+                sprite.close();
+            }
+            sprites = null;
+            spritesAutoUpdate = null;
         }
     }
 
@@ -73,6 +95,7 @@ public class Object implements Comparable<Object> {
      *
      */
     public void update() {
+
         if (updatePeriodLeft == 0) {
             updatePeriodLeft = updatePeriod;
         }
@@ -85,12 +108,18 @@ public class Object implements Comparable<Object> {
      *
      */
     public void commit() {
-        if (sprite != null) {
-            sprite.setPos(new Point(position));
-            sprite.setLayer(layer);
-            sprite.setDepth(depth);
-            sprite.setRotation(rotation);
-            sprite.setVisible(visible);
+
+        if (sprites == null) {
+            return;
+        }
+
+        for (int i = 0; i < sprites.size(); ++i) {
+            Sprite sprite = sprites.get(i);
+            if (spritesAutoUpdate.get(i)) {
+                sprite.setPosition(new Point(position));
+                sprite.setRotation(rotation);
+                sprite.setVisible(visible);
+            }
             sprite.commit();
         }
     }
@@ -102,10 +131,16 @@ public class Object implements Comparable<Object> {
      */
     @Override
     public int compareTo(Object o) {
-        if (o == this)
+
+        if (o == this) {
             return 0;
-        else
+        }
+        else if (priority < o.priority) {
             return 1;
+        }
+        else {
+            return -1;
+        }
     }
 
     /**
@@ -148,50 +183,66 @@ public class Object implements Comparable<Object> {
 
     /**
      *
+     * @param sprites
+     */
+    public void setSprites(ArrayList<Sprite> sprites) {
+        this.sprites = sprites;
+        this.spritesAutoUpdate = new ArrayList<>();
+        for (int i = 0; i < sprites.size(); ++i) {
+            this.spritesAutoUpdate.add(true);
+        }
+    }
+
+    /**
+     *
+     * @param sprites
+     */
+    public void setSprites(ArrayList<Sprite> sprites, ArrayList<Boolean> spritesAutoUpdate) {
+        this.sprites = sprites;
+        this.spritesAutoUpdate = spritesAutoUpdate;
+    }
+
+    /**
+     *
      * @return
      */
-    public Sprite getSprite() {
-        return sprite;
+    public ArrayList<Sprite> getSprites() {
+        return sprites;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Sprite getSprite(int i) {
+        return sprites.get(i);
     }
 
     /**
      *
      * @param sprite
      */
-    public void setSprite(Sprite sprite) {
-        this.sprite = sprite;
+    public void addSprite(Sprite sprite) {
+        this.sprites.add(sprite);
+        this.spritesAutoUpdate.add(true);
     }
 
     /**
      *
-     * @return
+     * @param sprite
      */
-    public int getLayer() {
-        return layer;
+    public void addSprite(Sprite sprite, boolean autoUpdate) {
+        this.sprites.add(sprite);
+        this.spritesAutoUpdate.add(autoUpdate);
     }
 
     /**
      *
-     * @param layer
+     * @param index
+     * @param autoUpdate
      */
-    public void setLayer(int layer) {
-        this.layer = layer;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public float getDepth() {
-        return depth;
-    }
-
-    /**
-     *
-     * @param depth
-     */
-    public void setDepth(float depth) {
-        this.depth = depth;
+    public void setSpritesAutoUpdate(int index, boolean autoUpdate) {
+        spritesAutoUpdate.set(index, autoUpdate);
     }
 
     /**
@@ -290,10 +341,10 @@ public class Object implements Comparable<Object> {
 
     private PointF position;
     private float rotation;
-    private int layer;
-    private float depth;
-    private Sprite sprite;
     private boolean visible;
+    private int priority;
+    private ArrayList<Sprite> sprites;
+    private ArrayList<Boolean> spritesAutoUpdate;
 
     private int updatePeriod;
     private int updatePeriodLeft;

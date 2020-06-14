@@ -12,6 +12,7 @@ import androidx.core.util.Pair;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Sprite {
 
@@ -28,7 +29,8 @@ public class Sprite {
         private int fontColor = Color.argb(255, 255, 255, 255);
         private Paint.Align textAlign = Paint.Align.LEFT;
         private int bgColor = Color.argb(0, 0, 0, 0);
-        private Point position = new Point(0, 0);
+        private Point position = new Point();
+        private Point positionOffset = new Point();
         private Size size = new Size(0, 0);
         private int layer = 0;
         private float depth = 0.0f;
@@ -56,6 +58,10 @@ public class Sprite {
         }
         public Builder position(Point position) {
             this.position = position;
+            return this;
+        }
+        public Builder positionOffset(Point positionOffset) {
+            this.positionOffset = positionOffset;
             return this;
         }
         public Builder size(Size size) {
@@ -104,6 +110,7 @@ public class Sprite {
 
     private Sprite(Builder builder) {
         position        = builder.position;
+        positionOffset  = builder.positionOffset;
         size            = builder.size;
         rawData         = builder.data;
         text            = builder.text;
@@ -120,10 +127,50 @@ public class Sprite {
         visible         = builder.visible;
         gridSize        = builder.gridSize;
         smooth          = builder.smooth;
-        animationList   = new ArrayList<>();
-        animationList.add(new Pair<>(new Point(0, 0), 1));
+        animation = new ArrayList<>();
+        animation.add(new Pair<>(new Point(0, 0), 1));
 
         load();
+    }
+
+    public Sprite(Sprite copy) {
+        position        = copy.position.clone();
+        positionOffset  = copy.positionOffset.clone();
+        size            = copy.size.clone();
+        if (rawData != null) {
+            rawData     = Arrays.copyOf(copy.rawData, copy.rawData.length);
+        }
+        else {
+            rawData     = null;
+        }
+        text            = copy.text;
+        fontSize        = copy.fontSize;
+        fontColor       = copy.fontColor;
+        bgColor         = copy.bgColor;
+        textAlign       = Paint.Align.valueOf(copy.textAlign.toString());
+        layer           = copy.layer;
+        depth           = copy.depth;
+        opaque          = copy.opaque;
+        colorize        = copy.colorize;
+        rotation        = copy.rotation;
+        name            = copy.name;
+        visible         = copy.visible;
+        gridSize        = copy.gridSize.clone();
+        smooth          = copy.smooth;
+        animation       = new ArrayList<>();
+        for (Pair<Point, Integer> frame: copy.animation) {
+            Pair<Point, Integer> frameCopy = new Pair<>(frame.first.clone(), frame.second);
+            animation.add(frameCopy);
+        }
+        currentAnimationIndex = 0;
+        currentAnimationStayingTime = 0;
+
+        load();
+    }
+
+    @Override
+    public Sprite clone() {
+        return new Sprite(this);
     }
 
     private byte[] drawTextToByteArray(String text, float fontSize, int fontColor, Paint.Align align) {
@@ -182,7 +229,7 @@ public class Sprite {
      * @return
      */
     public boolean load() {
-        if (!text.isEmpty()) {
+        if (!text.isEmpty() && rawData == null) {
             rawData = drawTextToByteArray(text, fontSize, fontColor, textAlign);
         }
 
@@ -241,7 +288,8 @@ public class Sprite {
      */
     public void commit() {
         Point grid = getNextGridIndex();
-        nSetProperties(id, position.x, position.y, size.width, size.height, layer, depth, opaque,
+        nSetProperties(id, position.x + positionOffset.x, position.y + positionOffset.y,
+                size.width, size.height, layer, depth, opaque,
                 colorize, rotation, visible, grid.x, grid.y);
     }
 
@@ -249,7 +297,7 @@ public class Sprite {
      *
      * @return
      */
-    public Point getPos() {
+    public Point getPosition() {
         return position;
     }
 
@@ -257,7 +305,7 @@ public class Sprite {
      *
      * @param position
      */
-    public void setPos(Point position) {
+    public void setPosition(Point position) {
         this.position = position;
     }
 
@@ -327,14 +375,6 @@ public class Sprite {
 
     /**
      *
-     * @return
-     */
-    public String getAsset() {
-        return name;
-    }
-
-    /**
-     *
      */
     public void show() {
         this.visible = true;
@@ -376,25 +416,25 @@ public class Sprite {
      * @return
      */
     public Point getGridIndex() {
-        if (animationList.size() <= currentAnimationIndex) {
+        if (animation.size() <= currentAnimationIndex) {
             return new Point(0, 0);
         }
-        return animationList.get(currentAnimationIndex).first;
+        return animation.get(currentAnimationIndex).first;
     }
 
     private Point getNextGridIndex() {
-        if (animationList.size() <= currentAnimationIndex) {
+        if (animation.size() <= currentAnimationIndex) {
             return new Point(0, 0);
         }
 
-        int maxStayingTime = animationList.get(currentAnimationIndex).second;
+        int maxStayingTime = animation.get(currentAnimationIndex).second;
 
         if (++currentAnimationStayingTime >= maxStayingTime) {
-            currentAnimationIndex = (currentAnimationIndex + 1) % animationList.size();
+            currentAnimationIndex = (currentAnimationIndex + 1) % animation.size();
             currentAnimationStayingTime = 0;
         }
 
-        return animationList.get(currentAnimationIndex).first;
+        return animation.get(currentAnimationIndex).first;
     }
 
     /**
@@ -402,18 +442,18 @@ public class Sprite {
      * @param gridIndex
      */
     public void setGridIndex(Point gridIndex) {
-        animationList.clear();
-        animationList.add(new Pair<>(gridIndex, 1));
+        animation.clear();
+        animation.add(new Pair<>(gridIndex, 1));
         this.currentAnimationIndex = 0;
         this.currentAnimationStayingTime = 0;
     }
 
     /**
      *
-     * @param animationList
+     * @param animation
      */
-    public void setAnimationIndex(ArrayList<Pair<Point, Integer>> animationList) {
-        this.animationList = animationList;
+    public void setAnimation(ArrayList<Pair<Point, Integer>> animation) {
+        this.animation = animation;
         this.currentAnimationIndex = 0;
         this.currentAnimationStayingTime = 0;
     }
@@ -423,8 +463,8 @@ public class Sprite {
      * @param gridIndex
      * @param stayingTime
      */
-    public void addAnimationIndex(Point gridIndex, int stayingTime) {
-        this.animationList.add(new Pair<>(gridIndex, stayingTime));
+    public void addAnimationFrame(Point gridIndex, int stayingTime) {
+        this.animation.add(new Pair<>(gridIndex, stayingTime));
         this.currentAnimationIndex = 0;
         this.currentAnimationStayingTime = 0;
     }
@@ -432,8 +472,8 @@ public class Sprite {
     /**
      *
      */
-    public void clearAnimationIndex() {
-        this.animationList.clear();
+    public void clearAnimation() {
+        this.animation.clear();
     }
 
     /**
@@ -456,6 +496,38 @@ public class Sprite {
         this.colorize = colorize;
     }
 
+    /**
+     *
+     * @return
+     */
+    public float getOpaque() {
+        return opaque;
+    }
+
+    /**
+     *
+     * @param opaque
+     */
+    public void setOpaque(float opaque) {
+        this.opaque = opaque;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Point getPositionOffset() {
+        return positionOffset;
+    }
+
+    /**
+     *
+     * @param positionOffset
+     */
+    public void setPositionOffset(Point positionOffset) {
+        this.positionOffset = positionOffset;
+    }
+
     private final int INVALID_ID = -1;
 
     private String name;
@@ -476,7 +548,8 @@ public class Sprite {
     private boolean smooth;
     private Size gridSize;
     private float[] colorize;
-    private ArrayList<Pair<Point, Integer>> animationList;
+    private Point positionOffset;
+    private ArrayList<Pair<Point, Integer>> animation;
     private int currentAnimationIndex = 0;
     private int currentAnimationStayingTime = 0;
 
