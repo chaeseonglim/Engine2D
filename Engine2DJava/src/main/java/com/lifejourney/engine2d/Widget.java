@@ -2,15 +2,14 @@ package com.lifejourney.engine2d;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-
-public class Widget implements Comparable<Widget> {
+public class Widget implements Controllable {
 
     private final String LOG_TAG = "Widget";
 
-    public Widget(Rect region, int layer) {
+    public Widget(Rect region, int layer, float depth) {
         this.region = region;
         this.layer = layer;
+        this.depth = depth;
     }
 
     /**
@@ -24,13 +23,11 @@ public class Widget implements Comparable<Widget> {
      * @param event
      * @return
      */
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
         if (!isVisible()) {
             return false;
-        }
-        else if (captureInput) {
-            return true;
         }
         else {
             return checkIfInputEventInRegion(event);
@@ -38,41 +35,12 @@ public class Widget implements Comparable<Widget> {
     }
 
     protected boolean checkIfInputEventInRegion(MotionEvent event) {
+
         PointF touchedPos = Engine2D.GetInstance().translateScreenToWidgetCoord(
                 new PointF(event.getX(), event.getY()));
 
-        // FIXME: it should be checked differently for such as dragging event
+        // FIXME: it should be checked differently for such as dragging events
         return region.includes(touchedPos);
-    }
-
-    /**
-     *
-     * @param other
-     * @return
-     */
-    @Override
-    public int compareTo(@NonNull Widget other) {
-        if (other == this) {
-            return 0;
-        }
-        else {
-            return compareLayer(other);
-        }
-    }
-
-    /**
-     *
-     * @param other
-     * @return
-     */
-    private int compareLayer(Widget other) {
-        if (!other.captureInput && this.captureInput) {
-            return -1;
-        }
-        else if (other.captureInput && !this.captureInput) {
-            return 1;
-        }
-        else return Integer.compare(other.layer, this.layer);
     }
 
     /**
@@ -85,6 +53,7 @@ public class Widget implements Comparable<Widget> {
      *
      */
     public void commit() {
+
         Rect viewport = Engine2D.GetInstance().getViewport();
         screenRegion = new RectF(region);
         screenRegion.offset(viewport.x, viewport.y);
@@ -146,23 +115,41 @@ public class Widget implements Comparable<Widget> {
 
     /**
      *
-     * @param captureInput
+     * @return
      */
-    public void setCaptureInput(boolean captureInput) {
-        this.captureInput = captureInput;
+    @Override
+    public int getLayer() {
+        return layer;
+    }
+
+    /**
+     *
+     * @param layer
+     */
+    public void setLayer(int layer) {
+        this.layer = layer;
     }
 
     /**
      *
      * @return
      */
-    public boolean getCaptureInput() {
-        return captureInput;
+    @Override
+    public float getDepth() {
+        return depth;
+    }
+
+    /**
+     *
+     * @param depth
+     */
+    public void setDepth(float depth) {
+        this.depth = depth;
     }
 
     private Rect region;
     private RectF screenRegion;
-    private int layer = 0;
+    private int layer;
+    private float depth;
     private boolean visible = false;
-    private boolean captureInput = false;
 }

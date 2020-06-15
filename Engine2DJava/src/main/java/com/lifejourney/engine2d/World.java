@@ -3,6 +3,7 @@ package com.lifejourney.engine2d;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.PriorityQueue;
 
@@ -28,6 +29,19 @@ public class World {
         view = null;
     }
 
+    public static Comparator<Controllable> controllableComparator = new Comparator<Controllable>() {
+
+        public int compare(Controllable cont1, Controllable cont2){
+            int result = Integer.compare(cont2.getLayer(), cont1.getLayer());
+            if (result == 0) {
+                return Float.compare(cont2.getDepth(), cont1.getDepth());
+            }
+            else {
+                return result;
+            }
+        }
+    };
+
     /**
      *
      * @param event
@@ -35,17 +49,21 @@ public class World {
      */
     public boolean onTouchEvent(MotionEvent event) {
 
-        PriorityQueue<Widget> widgetSorted = new PriorityQueue<>();
-        for (Widget widget : widgets) {
-            widgetSorted.offer(widget);
+        // controllables
+        PriorityQueue<Controllable> controllableSorted =
+                new PriorityQueue<>(controllables.size(), controllableComparator);
+        for (Controllable controllable : controllables) {
+            controllableSorted.offer(controllable);
         }
-        while (!widgetSorted.isEmpty()) {
-            Widget widget = widgetSorted.poll();
-            assert widget != null;
-            if (widget.onTouchEvent(event)) {
+        while (!controllableSorted.isEmpty()) {
+            Controllable controllable = controllableSorted.poll();
+            assert controllable != null;
+            if (controllable.onTouchEvent(event)) {
                 return true;
             }
         }
+
+        // view
         if (view != null) {
             return view.onTouchEvent(event);
         }
@@ -187,6 +205,12 @@ public class World {
      */
     public void addObject(Object object) {
 
+        if (object instanceof CollidableObject) {
+            collidablePool.add((CollidableObject)object);
+        }
+        if (object instanceof Controllable) {
+            controllables.add((Controllable)object);
+        }
         objects.add(object);
     }
 
@@ -196,26 +220,12 @@ public class World {
      */
     public void removeObject(Object object) {
 
-        objects.remove(object);
-    }
-
-    /**
-     *
-     * @param object
-     */
-    public void addObject(CollidableObject object) {
-
-        objects.add(object);
-        collidablePool.addObject(object);
-    }
-
-    /**
-     *
-     * @param object
-     */
-    public void removeObject(CollidableObject object) {
-
-        collidablePool.removeObject(object);
+        if (object instanceof CollidableObject) {
+            collidablePool.remove((CollidableObject)object);
+        }
+        if (object instanceof Controllable) {
+            controllables.remove(object);
+        }
         objects.remove(object);
     }
 
@@ -226,6 +236,7 @@ public class World {
     public void addWidget(Widget widget) {
 
         widgets.add(widget);
+        controllables.add(widget);
     }
 
     /**
@@ -235,6 +246,7 @@ public class World {
     public void removeWidget(Widget widget) {
 
         widgets.remove(widget);
+        controllables.remove(widget);
     }
 
     /**
@@ -288,6 +300,7 @@ public class World {
 
     private View view;
     private ArrayList<Object> objects = new ArrayList<>();
-    private ArrayList<Widget> widgets = new ArrayList<>();
+    private ArrayList<Controllable> controllables = new ArrayList<>();
     private CollidablePool collidablePool;
+    private ArrayList<Widget> widgets = new ArrayList<>();
 }

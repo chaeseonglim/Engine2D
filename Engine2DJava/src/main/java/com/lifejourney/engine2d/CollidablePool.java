@@ -16,7 +16,7 @@ public class CollidablePool {
      *
      * @param object
      */
-    void addObject(CollidableObject object) {
+    void add(CollidableObject object) {
         objects.add(object);
     }
 
@@ -24,7 +24,7 @@ public class CollidablePool {
      *
      * @param object
      */
-    void removeObject(CollidableObject object) {
+    void remove(CollidableObject object) {
         objects.remove(object);
     }
 

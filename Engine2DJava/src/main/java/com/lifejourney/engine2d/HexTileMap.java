@@ -117,6 +117,22 @@ public abstract class HexTileMap {
 
     /**
      *
+     */
+    public void show() {
+
+        setVisible(true);
+    }
+
+    /**
+     *
+     */
+    public void hide() {
+
+        setVisible(false);
+    }
+
+    /**
+     *
      * @return
      */
     public Size getMapSize() {

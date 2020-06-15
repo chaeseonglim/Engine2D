@@ -17,6 +17,8 @@ public class Object implements Comparable<Object> {
         protected ArrayList<Boolean> spritesAutoUpdate = new ArrayList<>();
         protected boolean visible = false;
         protected int updatePeriod = 1;
+        protected int layer = 0;
+        protected float depth = 0.0f;
         protected int priority = 0;
 
         public Builder(PointF position) {
@@ -24,6 +26,14 @@ public class Object implements Comparable<Object> {
         }
         public T rotation(float rotation) {
             this.rotation = rotation;
+            return (T)this;
+        }
+        public T layer(int layer) {
+            this.layer = layer;
+            return (T)this;
+        }
+        public T depth(int depth) {
+            this.depth = depth;
             return (T)this;
         }
         public T sprite(Sprite sprite) {
@@ -68,6 +78,8 @@ public class Object implements Comparable<Object> {
     protected Object(Builder builder) {
 
         position = builder.position;
+        layer = builder.layer;
+        depth = builder.depth;
         rotation = builder.rotation;
         visible = builder.visible;
         sprites = builder.sprites;
@@ -117,6 +129,8 @@ public class Object implements Comparable<Object> {
             Sprite sprite = sprites.get(i);
             if (spritesAutoUpdate.get(i)) {
                 sprite.setPosition(new Point(position));
+                sprite.setDepth(depth);
+                sprite.setLayer(layer);
                 sprite.setRotation(rotation);
                 sprite.setVisible(visible);
             }
@@ -339,7 +353,41 @@ public class Object implements Comparable<Object> {
         this.debugMode = debugMode;
     }
 
+    /**
+     *
+     * @return
+     */
+    public int getLayer() {
+        return layer;
+    }
+
+    /**
+     *
+     * @param layer
+     */
+    public void setLayer(int layer) {
+        this.layer = layer;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public float getDepth() {
+        return depth;
+    }
+
+    /**
+     *
+     * @param depth
+     */
+    public void setDepth(float depth) {
+        this.depth = depth;
+    }
+
     private PointF position;
+    private int layer;
+    private float depth;
     private float rotation;
     private boolean visible;
     private int priority;
