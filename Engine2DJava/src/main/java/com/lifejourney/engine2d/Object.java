@@ -1,5 +1,7 @@
 package com.lifejourney.engine2d;
 
+import androidx.core.util.Pair;
+
 import java.util.ArrayList;
 
 public class Object implements Comparable<Object> {
@@ -13,8 +15,7 @@ public class Object implements Comparable<Object> {
 
         // Optional parameters
         protected float rotation = 0.0f;
-        protected ArrayList<Sprite> sprites = new ArrayList<>();
-        protected ArrayList<Boolean> spritesAutoUpdate = new ArrayList<>();
+        protected ArrayList<Pair<Sprite, Boolean>> sprites = new ArrayList<>();
         protected boolean visible = false;
         protected int updatePeriod = 1;
         protected int layer = 0;
@@ -37,25 +38,11 @@ public class Object implements Comparable<Object> {
             return (T)this;
         }
         public T sprite(Sprite sprite) {
-            this.sprites.add(sprite);
-            this.spritesAutoUpdate.add(true);
+            this.sprites.add(new Pair<>(sprite, true));
             return (T)this;
         }
         public T sprite(Sprite sprite, boolean autoUpdate) {
-            this.sprites.add(sprite);
-            this.spritesAutoUpdate.add(autoUpdate);
-            return (T)this;
-        }
-        public T sprites(ArrayList<Sprite> sprites) {
-            this.sprites = sprites;
-            for (int i = 0; i < sprites.size(); ++i) {
-                this.spritesAutoUpdate.add(true);
-            }
-            return (T)this;
-        }
-        public T sprites(ArrayList<Sprite> sprites, ArrayList<Boolean> spritesAutoUpdate) {
-            this.sprites = sprites;
-            this.spritesAutoUpdate = spritesAutoUpdate;
+            this.sprites.add(new Pair<>(sprite, autoUpdate));
             return (T)this;
         }
         public T visible(boolean visible) {
@@ -83,7 +70,6 @@ public class Object implements Comparable<Object> {
         rotation = builder.rotation;
         visible = builder.visible;
         sprites = builder.sprites;
-        spritesAutoUpdate = builder.spritesAutoUpdate;
         updatePeriod = builder.updatePeriod;
         priority = builder.priority;
         updatePeriodLeft = (int) (Math.random()%updatePeriod);
@@ -95,11 +81,10 @@ public class Object implements Comparable<Object> {
     public void close() {
 
         if (sprites != null) {
-            for (Sprite sprite: sprites) {
-                sprite.close();
+            for (Pair<Sprite, Boolean> pair: sprites) {
+                pair.first.close();
             }
             sprites = null;
-            spritesAutoUpdate = null;
         }
     }
 
@@ -126,10 +111,10 @@ public class Object implements Comparable<Object> {
         }
 
         for (int i = 0; i < sprites.size(); ++i) {
-            Sprite sprite = sprites.get(i);
-            if (spritesAutoUpdate.get(i)) {
+            Sprite sprite = sprites.get(i).first;
+            if (sprites.get(i).second) {
                 sprite.setPosition(new Point(position));
-                sprite.setDepth(depth);
+                sprite.setDepth(depth + 0.1f*i);
                 sprite.setLayer(layer);
                 sprite.setRotation(rotation);
                 sprite.setVisible(visible);
@@ -197,30 +182,9 @@ public class Object implements Comparable<Object> {
 
     /**
      *
-     * @param sprites
-     */
-    public void setSprites(ArrayList<Sprite> sprites) {
-        this.sprites = sprites;
-        this.spritesAutoUpdate = new ArrayList<>();
-        for (int i = 0; i < sprites.size(); ++i) {
-            this.spritesAutoUpdate.add(true);
-        }
-    }
-
-    /**
-     *
-     * @param sprites
-     */
-    public void setSprites(ArrayList<Sprite> sprites, ArrayList<Boolean> spritesAutoUpdate) {
-        this.sprites = sprites;
-        this.spritesAutoUpdate = spritesAutoUpdate;
-    }
-
-    /**
-     *
      * @return
      */
-    public ArrayList<Sprite> getSprites() {
+    public ArrayList<Pair<Sprite, Boolean>> getSprites() {
         return sprites;
     }
 
@@ -229,7 +193,7 @@ public class Object implements Comparable<Object> {
      * @return
      */
     public Sprite getSprite(int i) {
-        return sprites.get(i);
+        return sprites.get(i).first;
     }
 
     /**
@@ -237,8 +201,7 @@ public class Object implements Comparable<Object> {
      * @param sprite
      */
     public void addSprite(Sprite sprite) {
-        this.sprites.add(sprite);
-        this.spritesAutoUpdate.add(true);
+        sprites.add(new Pair<>(sprite, true));
     }
 
     /**
@@ -246,17 +209,7 @@ public class Object implements Comparable<Object> {
      * @param sprite
      */
     public void addSprite(Sprite sprite, boolean autoUpdate) {
-        this.sprites.add(sprite);
-        this.spritesAutoUpdate.add(autoUpdate);
-    }
-
-    /**
-     *
-     * @param index
-     * @param autoUpdate
-     */
-    public void setSpritesAutoUpdate(int index, boolean autoUpdate) {
-        spritesAutoUpdate.set(index, autoUpdate);
+        sprites.add(new Pair<>(sprite, autoUpdate));
     }
 
     /**
@@ -391,8 +344,7 @@ public class Object implements Comparable<Object> {
     private float rotation;
     private boolean visible;
     private int priority;
-    private ArrayList<Sprite> sprites;
-    private ArrayList<Boolean> spritesAutoUpdate;
+    private ArrayList<Pair<Sprite, Boolean>> sprites;
 
     private int updatePeriod;
     private int updatePeriodLeft;

@@ -24,6 +24,10 @@ public class OffsetCoord {
         fromScreenCoord(screenCoord);
     }
 
+    public OffsetCoord(PointF screenCoord) {
+        fromScreenCoord(screenCoord);
+    }
+
     /**
      *
      * @param obj
@@ -84,6 +88,14 @@ public class OffsetCoord {
      */
     public void fromScreenCoord(Point screenCoord) {
         fromCubeCoord(new CubeCoord(screenCoord));
+    }
+
+    /**
+     *
+     * @param screenCoord
+     */
+    public void fromScreenCoord(PointF screenCoord) {
+        fromScreenCoord(new Point(screenCoord));
     }
 
     /**

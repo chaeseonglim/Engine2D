@@ -6,10 +6,11 @@ public class CollidablePool {
 
     private static final String LOG_TAG = "CollidablePool";
 
-    CollidablePool(Size regionSize) {
+    CollidablePool(Size regionSize, boolean response) {
         RectF region = new RectF(0, 0, (float)regionSize.width, (float)regionSize.height);
         objects = new ArrayList<>();
         quadTree = new QuadTree(0, region);
+        this.response = response;
     }
 
     /**
@@ -55,7 +56,7 @@ public class CollidablePool {
                     continue;
 
                 // Collision check
-                collisionDetector.checkAndReponseCollision(refObject, candidateObject);
+                collisionDetector.checkAndReponseCollision(refObject, candidateObject, response);
             }
 
             refObject.setCollisionChecked(true);
@@ -98,4 +99,5 @@ public class CollidablePool {
 
     private ArrayList<CollidableObject> objects;
     private QuadTree quadTree;
+    private boolean response;
 }

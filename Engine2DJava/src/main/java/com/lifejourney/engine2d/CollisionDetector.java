@@ -26,7 +26,7 @@ class CollisionDetector {
      * @param B
      * @return
      */
-    boolean checkAndReponseCollision(CollidableObject A, CollidableObject B) {
+    boolean checkAndReponseCollision(CollidableObject A, CollidableObject B, boolean response) {
         // Check if collision occurs
         Manifold manifold = getCollisionState(A, B);
         if (manifold == null) {
@@ -35,7 +35,9 @@ class CollisionDetector {
 
         // Post collision handling
         correctPosition(A, B, manifold);
-        resolveImpulse(A, B, manifold);
+        if (response) {
+            resolveImpulse(A, B, manifold);
+        }
 
         // Call event handlers of each objects
         A.onCollisionOccurred(B);

@@ -42,7 +42,7 @@ public class Shape {
      * @return
      */
     public Shape multiply(float m) {
-        if (originalVertices.size() > 0) {
+        if (originalVertices != null) {
             for (PointF vertex : originalVertices) {
                 vertex.multiply(m);
             }

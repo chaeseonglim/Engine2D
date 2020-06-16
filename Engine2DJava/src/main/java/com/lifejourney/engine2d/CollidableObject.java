@@ -1,5 +1,7 @@
 package com.lifejourney.engine2d;
 
+import java.util.ArrayList;
+
 public class CollidableObject extends Object {
 
     static final String LOG_TAG = "CollidableObject";
@@ -38,7 +40,7 @@ public class CollidableObject extends Object {
             return (T)this;
         }
         public T maxAngularVelocity(float maxAngularVelocity) {
-            this.maxVelocity = maxAngularVelocity;
+            this.maxAngularVelocity = maxAngularVelocity;
             return (T)this;
         }
         public T shape(Shape shape) {
@@ -173,6 +175,97 @@ public class CollidableObject extends Object {
             circleShape.setCenter(shape.getPosition());
             circleShape.setRadius(shape.getRadius());
             circleShape.commit();
+        }
+    }
+
+    /**
+     *
+     * @param targetPosition
+     * @param weight
+     */
+    public void seek(PointF targetPosition, float weight) {
+        Vector2D targetVector = targetPosition.vectorize().subtract(getPositionVector());
+        Vector2D desiredForce =
+                targetVector.normalize().multiply(getMaxVelocity())
+                        .subtract(getVelocity()).multiply(weight);
+        addForce(desiredForce);
+    }
+
+    /**
+     *
+     * @param targetPosition
+     * @param weight
+     */
+    public void flee(PointF targetPosition, float weight) {
+        Vector2D targetVector = getPositionVector().subtract(targetPosition.vectorize());
+        Vector2D desiredForce =
+                targetVector.normalize().multiply(getMaxVelocity())
+                        .subtract(getVelocity()).multiply(weight);
+        addForce(desiredForce);
+    }
+
+    /**
+     *
+     * @param weight
+     */
+    public void wander(float angleChange, float wanderRadius, float weight) {
+        Vector2D circleCenter = getVelocity().normalize().multiply(wanderRadius);
+        Vector2D displacement = new Vector2D(0, -1).multiply(wanderRadius);
+        displacement.rotate(wanderAngle);
+
+        wanderAngle += (Math.random() * angleChange) - (angleChange * .5);
+
+        Vector2D desiredForce = circleCenter.add(displacement).truncate(maxForce).multiply(weight);
+        addForce(desiredForce);
+    }
+
+    /**
+     *
+     */
+    public void restrict(PointF center, float radius) {
+        if (getFuturePositionVector(getUpdatePeriod()).distance(center.vectorize()) > radius) {
+            Vector2D centerDirection = getPositionVector().subtract(center.vectorize()).normalize();
+            setForce(centerDirection.multiply(centerDirection.dot(getForce())));
+        }
+    }
+
+    /**
+     *
+     */
+    public void restrict(OffsetCoord offsetCoord) {
+        Point futureScreenCoord = new Point(new PointF(getFuturePositionVector(getUpdatePeriod())));
+        OffsetCoord futureOffsetCoord = new OffsetCoord(futureScreenCoord);
+        if (!futureOffsetCoord.equals(offsetCoord)) {
+            Vector2D centerDirection = offsetCoord.toScreenCoord().vectorize()
+                    .subtract(getPositionVector()).normalize();
+            setForce(centerDirection.multiply(getMaxVelocity()));
+        }
+    }
+
+    /**
+     *
+     * @param neighbors
+     */
+    public void separate(ArrayList neighbors, float minSeperation, float weight) {
+
+        Vector2D totalForce = new Vector2D();
+        int neighborCount = 0;
+
+        for (java.lang.Object object: neighbors) {
+            CollidableObject neighbor = (CollidableObject) object;
+            if (neighbor != this) {
+                float distance = neighbor.getPositionVector().distance(getPositionVector());
+                if (distance < minSeperation) {
+                    Vector2D force = getPositionVector().subtract(neighbor.getPositionVector());
+                    totalForce.add(force);
+                    neighborCount++;
+                }
+            }
+        }
+
+        if (neighborCount > 0) {
+            Vector2D desiredForce = totalForce.divide(neighborCount).truncate(maxForce).multiply(weight);
+            addForce(desiredForce);
         }
     }
 
@@ -595,6 +688,8 @@ public class CollidableObject extends Object {
     private float invInertia;
     private boolean collisionChecked = false;
     private boolean collisionEnabled = true;
+
+    private float wanderAngle = 0.0f;
 
     // debugging
     private Line lineVelocity;

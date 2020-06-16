@@ -15,9 +15,9 @@ public class World {
      * Should be called from subclass
      * @param worldSize
      */
-    protected void initCollisionPool(Size worldSize) {
+    protected void initCollisionPool(Size worldSize, boolean response) {
 
-        collidablePool = new CollidablePool(worldSize);
+        collidablePool = new CollidablePool(worldSize, response);
     }
 
     /**
@@ -206,7 +206,9 @@ public class World {
     public void addObject(Object object) {
 
         if (object instanceof CollidableObject) {
-            collidablePool.add((CollidableObject)object);
+            if (collidablePool != null ) {
+                collidablePool.add((CollidableObject) object);
+            }
         }
         if (object instanceof Controllable) {
             controllables.add((Controllable)object);
@@ -221,7 +223,9 @@ public class World {
     public void removeObject(Object object) {
 
         if (object instanceof CollidableObject) {
-            collidablePool.remove((CollidableObject)object);
+            if (collidablePool != null ) {
+                collidablePool.remove((CollidableObject) object);
+            }
         }
         if (object instanceof Controllable) {
             controllables.remove(object);

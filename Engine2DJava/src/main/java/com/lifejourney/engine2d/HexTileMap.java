@@ -1,5 +1,6 @@
 package com.lifejourney.engine2d;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -17,8 +18,11 @@ public abstract class HexTileMap {
      */
     public void close() {
 
-        for (HashMap.Entry<OffsetCoord, Sprite> entry: sprites.entrySet()) {
-            entry.getValue().close();
+        for (HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry : sprites.entrySet()) {
+            ArrayList<Sprite> spriteList = entry.getValue();
+            for (Sprite sprite: spriteList) {
+                sprite.close();
+            }
         }
         sprites.clear();
     }
@@ -44,7 +48,7 @@ public abstract class HexTileMap {
      * @param offsetCoord
      * @return
      */
-    protected abstract Sprite getTileSprite(OffsetCoord offsetCoord);
+    protected abstract ArrayList<Sprite> getTileSprite(OffsetCoord offsetCoord);
 
     /**
      *
@@ -53,15 +57,17 @@ public abstract class HexTileMap {
 
         Rect regionToCache = getRegionToCache();
 
-        Iterator<HashMap.Entry<OffsetCoord, Sprite>> iter = sprites.entrySet().iterator();
+        Iterator<HashMap.Entry<OffsetCoord, ArrayList<Sprite>>> iter = sprites.entrySet().iterator();
         while (iter.hasNext()) {
-            HashMap.Entry<OffsetCoord, Sprite> entry = iter.next();
+            HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry = iter.next();
             OffsetCoord offsetCoord = entry.getKey();
             Rect spriteRegion = new Rect(offsetCoord.toScreenCoord(), tileSize);
             spriteRegion.offset(-tileSize.width/2, -tileSize.height/2);
             if (!Rect.intersects(regionToCache, spriteRegion)) {
-                Sprite sprite = entry.getValue();
-                sprite.close();
+                ArrayList<Sprite> spriteList = entry.getValue();
+                for (Sprite sprite: spriteList) {
+                    sprite.close();
+                }
                 iter.remove();
             }
         }
@@ -99,8 +105,11 @@ public abstract class HexTileMap {
      */
     public void commit() {
 
-        for (HashMap.Entry<OffsetCoord, Sprite> entry : sprites.entrySet()) {
-            entry.getValue().commit();
+        for (HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry : sprites.entrySet()) {
+            ArrayList<Sprite> spriteList = entry.getValue();
+            for (Sprite sprite: spriteList) {
+                sprite.commit();
+            }
         }
     }
 
@@ -110,8 +119,11 @@ public abstract class HexTileMap {
      */
     public void setVisible(boolean visible) {
 
-        for (HashMap.Entry<OffsetCoord, Sprite> entry : sprites.entrySet()) {
-            entry.getValue().setVisible(visible);
+        for (HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry : sprites.entrySet()) {
+            ArrayList<Sprite> spriteList = entry.getValue();
+            for (Sprite sprite: spriteList) {
+                sprite.setVisible(visible);
+            }
         }
     }
 
@@ -196,16 +208,6 @@ public abstract class HexTileMap {
 
     /**
      *
-     * @param offsetCoord
-     * @param sprite
-     */
-    public void addSprite(OffsetCoord offsetCoord, Sprite sprite) {
-
-        sprites.put(offsetCoord, sprite);
-    }
-
-    /**
-     *
      * @param hexSize
      */
     public void setHexSize(int hexSize) {
@@ -234,7 +236,7 @@ public abstract class HexTileMap {
     private final static float SQRT3 = (float) Math.sqrt(3.0);
 
     private byte[][] mapData;
-    private HashMap<OffsetCoord, Sprite> sprites = new HashMap<>();
+    private HashMap<OffsetCoord, ArrayList<Sprite>> sprites = new HashMap<>();
     private Size mapSize;
     private Size tileSize;
     private int cacheMargin = 2;
