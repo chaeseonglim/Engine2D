@@ -10,43 +10,30 @@ public abstract class PathFinder {
 
     private static final String LOG_TAG = "PathFinder";
 
-    protected enum Direction {
-        TOP(0, -1),
-        TOP_LEFT(-1, -1),
-        TOP_RIGHT(1, -1),
-        LEFT(-1, 0),
-        RIGHT(1, 0),
-        BOTTOM(0, 1),
-        BOTTOM_LEFT(-1, 1),
-        BOTTOM_RIGHT(1, 1);
-
-        Direction(int xOffset, int yOffset) {
-            this.xOffset = xOffset;
-            this.yOffset = yOffset;
-        }
-
-        public Point getOffset() {
-            return new Point(xOffset, yOffset);
-        }
-
-        private int xOffset;
-        private int yOffset;
+    public PathFinder() {
     }
 
-    public PathFinder(Point startPosition, Point targetPosition) {
-        this.startPosition = startPosition;
-        this.targetPosition = targetPosition;
+    public PathFinder(Point start, Point target) {
+
+        set(start, target);
+    }
+
+    public void set(Point start, Point target) {
+
+        this.start = start;
+        this.target = target;
     }
 
     /**
      * Finding path using A* algorithm
      */
     public ArrayList<Waypoint> findOptimalPath() {
+
         PriorityQueue<Waypoint> openList = new PriorityQueue<>();
         ArrayList<Waypoint> closeList = new ArrayList<>();
 
         // Add start point to open list
-        openList.offer(new Waypoint(startPosition, null,0.0f));
+        openList.offer(new Waypoint(start, null,0.0f));
 
         // Search through open list
         while (openList.size() > 0) {
@@ -54,7 +41,7 @@ public abstract class PathFinder {
 
             // Check if it's goal
             assert waypoint != null;
-            if (waypoint.getPosition().equals(targetPosition)) {
+            if (waypoint.getPosition().equals(target)) {
                 // Get optimal path
                 optimalPath = new ArrayList<>();
                 while (waypoint != null) {
@@ -77,7 +64,7 @@ public abstract class PathFinder {
 
             for (Waypoint possibleWaypoint: possibleWaypoints) {
                 // Calculate heuristic score
-                possibleWaypoint.setCostToTarget(calcCostToTarget(possibleWaypoint, targetPosition));
+                possibleWaypoint.setCostToTarget(calculateCostToTarget(possibleWaypoint, target));
 
                 // Check if this candidate is in open list already
                 boolean skipThisWaypoint = false;
@@ -106,7 +93,6 @@ public abstract class PathFinder {
                 // Replace one if the exist one in open list has worse score than candidate
                 openList.remove(possibleWaypoint);
                 openList.offer(possibleWaypoint);
-
             }
         }
 
@@ -117,11 +103,20 @@ public abstract class PathFinder {
     /**
      *
      * @param waypoint
-     * @param targetPosition
      * @return
      */
-    private float calcCostToTarget(Waypoint waypoint, Point targetPosition) {
-        return waypoint.getPosition().distance(targetPosition);
+    private ArrayList<Waypoint> getPossibleWaypoints(Waypoint waypoint) {
+
+        ArrayList<Waypoint> neighbors = getNeighborWaypoints(waypoint);
+        ArrayList<Waypoint> possibleWaypoints = new ArrayList<>();
+
+        for (Waypoint neighbor : neighbors) {
+            if (isMovable(waypoint.getPosition(), neighbor.getPosition())) {
+                assert waypoint.getCostFromStart() == waypoint.getCostFromStart() + 1;
+                possibleWaypoints.add(neighbor);
+            }
+        }
+        return possibleWaypoints;
     }
 
     /**
@@ -137,28 +132,25 @@ public abstract class PathFinder {
      * @param waypoint
      * @return
      */
-    private ArrayList<Waypoint> getPossibleWaypoints(Waypoint waypoint) {
-        ArrayList<Waypoint> waypoints = new ArrayList<>();
-
-        for (Direction direction : Direction.values()) {
-            Point newPositon = new Point(waypoint.getPosition()).offset(direction.getOffset());
-            if (canMove(waypoint.getPosition(), newPositon)) {
-                waypoints.add(new Waypoint(newPositon, waypoint,
-                        waypoint.getCostFromStart()+1.0f));
-            }
-        }
-        return waypoints;
-    }
+    protected abstract ArrayList<Waypoint> getNeighborWaypoints(Waypoint waypoint);
 
     /**
      *
-     * @param curPt
-     * @param newPt
+     * @param current
+     * @param target
      * @return
      */
-    protected abstract boolean canMove(Point curPt, Point newPt);
+    protected abstract float calculateCostToTarget(Waypoint current, Point target);
 
-    private Point startPosition;
-    private Point targetPosition;
+    /**
+     *
+     * @param current
+     * @param target
+     * @return
+     */
+    protected abstract boolean isMovable(Point current, Point target);
+
+    private Point start;
+    private Point target;
     private ArrayList<Waypoint> optimalPath;
 }

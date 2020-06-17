@@ -61,7 +61,7 @@ public abstract class HexTileMap {
         while (iter.hasNext()) {
             HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry = iter.next();
             OffsetCoord offsetCoord = entry.getKey();
-            Rect spriteRegion = new Rect(offsetCoord.toScreenCoord(), tileSize);
+            Rect spriteRegion = new Rect(offsetCoord.toGameCoord(), tileSize);
             spriteRegion.offset(-tileSize.width/2, -tileSize.height/2);
             if (!Rect.intersects(regionToCache, spriteRegion)) {
                 ArrayList<Sprite> spriteList = entry.getValue();
@@ -87,8 +87,8 @@ public abstract class HexTileMap {
 
         OffsetCoord topLeft = new OffsetCoord();
         OffsetCoord bottomRight = new OffsetCoord();
-        topLeft.fromScreenCoord(cachedRegion.topLeft());
-        bottomRight.fromScreenCoord(cachedRegion.bottomRight());
+        topLeft.fromGameCoord(cachedRegion.topLeft());
+        bottomRight.fromGameCoord(cachedRegion.bottomRight());
 
         for (int y = Math.max(topLeft.getY(), 0); y < Math.min(bottomRight.getY(), mapSize.height); ++y) {
             for (int x = Math.max(topLeft.getX(), 0); x < Math.min(bottomRight.getX(), mapSize.width); ++x) {
@@ -211,8 +211,8 @@ public abstract class HexTileMap {
      * @param hexSize
      */
     public void setHexSize(int hexSize) {
-        OffsetCoord.setHexSize(hexSize);
-        CubeCoord.setHexSize(hexSize);
+        OffsetCoord.SetHexSize(hexSize);
+        CubeCoord.SetHexSize(hexSize);
 
         tileSize = new Size((int) Math.round(SQRT3 * hexSize), 2 * hexSize);
     }

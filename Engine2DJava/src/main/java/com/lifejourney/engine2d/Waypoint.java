@@ -37,7 +37,7 @@ public class Waypoint implements Comparable<Waypoint> {
      *
      * @return
      */
-    float getCostFromStart() {
+    public float getCostFromStart() {
         return costFromStart;
     }
 

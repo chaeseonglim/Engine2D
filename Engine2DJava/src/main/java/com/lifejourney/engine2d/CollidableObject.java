@@ -236,7 +236,7 @@ public class CollidableObject extends Object {
         Point futureScreenCoord = new Point(new PointF(getFuturePositionVector(getUpdatePeriod())));
         OffsetCoord futureOffsetCoord = new OffsetCoord(futureScreenCoord);
         if (!futureOffsetCoord.equals(offsetCoord)) {
-            Vector2D centerDirection = offsetCoord.toScreenCoord().vectorize()
+            Vector2D centerDirection = offsetCoord.toGameCoord().vectorize()
                     .subtract(getPositionVector()).normalize();
             setForce(centerDirection.multiply(getMaxVelocity()));
         }

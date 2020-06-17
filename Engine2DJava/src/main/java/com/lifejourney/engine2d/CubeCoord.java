@@ -8,6 +8,22 @@ public class CubeCoord {
 
     private final String LOG_TAG = "CubeCoord";
 
+    /**
+     *
+     * @return
+     */
+    public static int GetHexSize() {
+        return hexSize;
+    }
+
+    /**
+     *
+     * @param hexSize
+     */
+    public static void SetHexSize(int hexSize) {
+        CubeCoord.hexSize = hexSize;
+    }
+
     public CubeCoord() {
         this.x = this.y = this.z = 0;
     }
@@ -29,8 +45,8 @@ public class CubeCoord {
         fromOffsetCoord(offsetCoord);
     }
 
-    public CubeCoord(Point screenCoord) {
-        fromScreenCoord(screenCoord);
+    public CubeCoord(Point gameCoord) {
+        fromGameCoord(gameCoord);
     }
 
     /**
@@ -40,6 +56,7 @@ public class CubeCoord {
      */
     @Override
     public boolean equals(@Nullable java.lang.Object obj) {
+
         if (this != obj) {
             if (obj instanceof CubeCoord) {
                 return this.x == ((CubeCoord) obj).x && this.y == ((CubeCoord) obj).y &&
@@ -56,6 +73,7 @@ public class CubeCoord {
 
     @Override
     public int hashCode() {
+
         return x + (y << 5) + (z << 10);
     }
 
@@ -66,6 +84,7 @@ public class CubeCoord {
      * @param z
      */
     private void round(float x, float y, float z) {
+
         float rx = Math.round(x);
         float ry = Math.round(y);
         float rz = Math.round(z);
@@ -94,6 +113,7 @@ public class CubeCoord {
      * @return
      */
     public OffsetCoord toOffsetCoord() {
+
         return new OffsetCoord(x + (z - (z & 1)) / 2, z);
     }
 
@@ -102,17 +122,19 @@ public class CubeCoord {
      * @param offsetCoord
      */
     public void fromOffsetCoord(OffsetCoord offsetCoord) {
+
         x = offsetCoord.getX() - (offsetCoord.getY() - (offsetCoord.getY() & 1)) / 2;
         z = offsetCoord.getY();
         y = -x-z;
-        hexSize = offsetCoord.getHexSize();
+        hexSize = offsetCoord.GetHexSize();
     }
 
     /**
      *
      * @return
      */
-    public Point toScreenCoord() {
+    public Point toGameCoord() {
+
         return new Point((int)(hexSize * (SQRT3 * x + SQRT3 / 2 * z)),
                 (int)(hexSize * (3.0f / 2 * z)));
 
@@ -122,7 +144,8 @@ public class CubeCoord {
      *
      * @param pt
      */
-    public void fromScreenCoord(Point pt) {
+    public void fromGameCoord(Point pt) {
+
         float x = (SQRT3 / 3 * pt.x - 1.0f / 3 * pt.y) / hexSize;
         float z = (2.0f / 3 * pt.y) / hexSize;
         float y = -x-z;
@@ -138,6 +161,7 @@ public class CubeCoord {
      */
     @SuppressLint("Assert")
     public void setPos(int x, int y, int z) {
+
         assert (x + y + z) == 0;
 
         this.x = x;
@@ -195,18 +219,12 @@ public class CubeCoord {
 
     /**
      *
+     * @param cubeCoord
      * @return
      */
-    public static int getHexSize() {
-        return hexSize;
-    }
+    public int getDistance(CubeCoord cubeCoord) {
 
-    /**
-     *
-     * @param hexSize
-     */
-    public static void setHexSize(int hexSize) {
-        CubeCoord.hexSize = hexSize;
+        return (Math.abs(x - cubeCoord.x) + Math.abs(y - cubeCoord.y) + Math.abs(z - cubeCoord.z)) / 2;
     }
 
     private static final float SQRT3 = (float)Math.sqrt(3);
