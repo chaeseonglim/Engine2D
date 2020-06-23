@@ -113,7 +113,7 @@ public class Object implements Comparable<Object> {
         for (int i = 0; i < sprites.size(); ++i) {
             Sprite sprite = sprites.get(i).first;
             if (sprites.get(i).second) {
-                sprite.setPosition(new Point(position));
+                sprite.setPosition(position.clone());
                 sprite.setDepth(depth + 0.1f*i);
                 sprite.setLayer(layer);
                 sprite.setRotation(rotation);

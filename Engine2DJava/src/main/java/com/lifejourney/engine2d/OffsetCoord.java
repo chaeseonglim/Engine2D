@@ -2,6 +2,8 @@ package com.lifejourney.engine2d;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+
 public class OffsetCoord {
 
     private final static String LOG_TAG = "OffsetCoord";
@@ -43,6 +45,14 @@ public class OffsetCoord {
 
     public OffsetCoord(PointF gameCoord) {
         fromGameCoord(gameCoord);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public OffsetCoord clone() {
+        return new OffsetCoord(x, y);
     }
 
     /**
@@ -97,20 +107,10 @@ public class OffsetCoord {
      *
      * @return
      */
-    public Point toGameCoord() {
+    public PointF toGameCoord() {
 
-        return new Point((int) (hexSize * SQRT3 * (x + 0.5 * (y & 1))),
-            hexSize * 3/2 * y);
+        return new PointF((float)(hexSize * SQRT3 * (x + 0.5 * (y & 1))), (float)hexSize * 3/2 * y);
 
-    }
-
-    /**
-     *
-     * @param gameCoord
-     */
-    public void fromGameCoord(Point gameCoord) {
-
-        fromCubeCoord(new CubeCoord(gameCoord));
     }
 
     /**
@@ -119,7 +119,16 @@ public class OffsetCoord {
      */
     public void fromGameCoord(PointF gameCoord) {
 
-        fromGameCoord(new Point(gameCoord));
+        fromCubeCoord(new CubeCoord(gameCoord));
+    }
+
+    /**
+     *
+     * @param gameCoord
+     */
+    public void fromGameCoord(Point gameCoord) {
+
+        fromGameCoord(new PointF(gameCoord));
     }
 
     /**
@@ -156,12 +165,47 @@ public class OffsetCoord {
 
     /**
      *
+     * @param x
+     * @param y
+     */
+    public void offset(int x, int y) {
+        this.x += x;
+        this.y += y;
+    }
+
+    /**
+     *
      * @param offsetCoord
      * @return
      */
     public int getDistance(OffsetCoord offsetCoord) {
 
         return toCubeCoord().getDistance(offsetCoord.toCubeCoord());
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<OffsetCoord> getNeighbors() {
+        ArrayList<OffsetCoord> neighbors = new ArrayList<>();
+        if ((y & 1) == 0) {
+            neighbors.add(new OffsetCoord(x + 1, y));
+            neighbors.add(new OffsetCoord(x, y - 1));
+            neighbors.add(new OffsetCoord(x - 1, y - 1));
+            neighbors.add(new OffsetCoord(x - 1, y));
+            neighbors.add(new OffsetCoord(x - 1, y + 1));
+            neighbors.add(new OffsetCoord(x, y + 1));
+        }
+        else {
+            neighbors.add(new OffsetCoord(x + 1, y));
+            neighbors.add(new OffsetCoord(x + 1, y - 1));
+            neighbors.add(new OffsetCoord(x, y - 1));
+            neighbors.add(new OffsetCoord(x - 1, y));
+            neighbors.add(new OffsetCoord(x, y + 1));
+            neighbors.add(new OffsetCoord(x + 1, y + 1));
+        }
+        return neighbors;
     }
 
     private static final float SQRT3 = (float)Math.sqrt(3);

@@ -49,13 +49,13 @@ public class CollidablePool {
             candidatesList.clear();
             candidatesList = quadTree.retrieve(candidatesList, refObject);
 
+            // Collision check
             for (CollidableObject candidateObject : candidatesList) {
-                if (refObject == candidateObject ||
-                        candidateObject.isCollisionChecked() ||
-                        !candidateObject.isCollisionEnabled())
+                if (refObject == candidateObject || candidateObject.isCollisionChecked() ||
+                        !candidateObject.isCollisionEnabled()) {
                     continue;
+                }
 
-                // Collision check
                 collisionDetector.checkAndReponseCollision(refObject, candidateObject, response);
             }
 

@@ -168,7 +168,7 @@ public class Engine2D {
      *
      * @return
      */
-    CollisionDetector getCollisionDetector() {
+    public CollisionDetector getCollisionDetector() {
         return collisionDetector;
     }
 

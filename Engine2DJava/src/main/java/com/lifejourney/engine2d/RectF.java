@@ -16,7 +16,7 @@ public class RectF {
         this.height = height;
     }
 
-    public RectF(PointF pt, Size sz) {
+    public RectF(PointF pt, SizeF sz) {
         this.x = pt.x;
         this.y = pt.y;
         this.width = sz.width;

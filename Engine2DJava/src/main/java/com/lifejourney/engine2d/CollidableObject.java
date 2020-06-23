@@ -184,10 +184,11 @@ public class CollidableObject extends Object {
      * @param weight
      */
     public void seek(PointF targetPosition, float weight) {
+
         Vector2D targetVector = targetPosition.vectorize().subtract(getPositionVector());
         Vector2D desiredForce =
-                targetVector.normalize().multiply(getMaxVelocity())
-                        .subtract(getVelocity()).multiply(weight);
+                targetVector.normalize().multiply(getMaxVelocity()).subtract(getVelocity())
+                        .multiply(weight);
         addForce(desiredForce);
     }
 
@@ -197,10 +198,11 @@ public class CollidableObject extends Object {
      * @param weight
      */
     public void flee(PointF targetPosition, float weight) {
+
         Vector2D targetVector = getPositionVector().subtract(targetPosition.vectorize());
         Vector2D desiredForce =
-                targetVector.normalize().multiply(getMaxVelocity())
-                        .subtract(getVelocity()).multiply(weight);
+                targetVector.normalize().multiply(getMaxVelocity()).subtract(getVelocity())
+                    .multiply(weight);
         addForce(desiredForce);
     }
 
@@ -209,12 +211,11 @@ public class CollidableObject extends Object {
      * @param weight
      */
     public void wander(float angleChange, float wanderRadius, float weight) {
+
         Vector2D circleCenter = getVelocity().normalize().multiply(wanderRadius);
         Vector2D displacement = new Vector2D(0, -1).multiply(wanderRadius);
         displacement.rotate(wanderAngle);
-
         wanderAngle += (Math.random() * angleChange) - (angleChange * .5);
-
         Vector2D desiredForce = circleCenter.add(displacement).truncate(maxForce).multiply(weight);
         addForce(desiredForce);
     }
@@ -223,9 +224,13 @@ public class CollidableObject extends Object {
      *
      */
     public void restrict(PointF center, float radius) {
+
         if (getFuturePositionVector(getUpdatePeriod()).distance(center.vectorize()) > radius) {
-            Vector2D centerDirection = getPositionVector().subtract(center.vectorize()).normalize();
-            setForce(centerDirection.multiply(centerDirection.dot(getForce())));
+            setForce(new Vector2D());
+            setVelocity(new Vector2D());
+            Vector2D centerDirection =
+                    center.vectorize().subtract(getPositionVector()).normalize();
+            setForce(centerDirection.multiply(maxForce));
         }
     }
 
@@ -233,12 +238,15 @@ public class CollidableObject extends Object {
      *
      */
     public void restrict(OffsetCoord offsetCoord) {
-        Point futureScreenCoord = new Point(new PointF(getFuturePositionVector(getUpdatePeriod())));
-        OffsetCoord futureOffsetCoord = new OffsetCoord(futureScreenCoord);
+
+        Point futureGameCoord = new Point(new PointF(getFuturePositionVector(getUpdatePeriod())));
+        OffsetCoord futureOffsetCoord = new OffsetCoord(futureGameCoord);
         if (!futureOffsetCoord.equals(offsetCoord)) {
-            Vector2D centerDirection = offsetCoord.toGameCoord().vectorize()
-                    .subtract(getPositionVector()).normalize();
-            setForce(centerDirection.multiply(getMaxVelocity()));
+            setForce(new Vector2D());
+            setVelocity(new Vector2D());
+            Vector2D centerDirection =
+                    offsetCoord.toGameCoord().vectorize().subtract(getPositionVector()).normalize();
+            setForce(centerDirection.multiply(maxForce));
         }
     }
 
@@ -264,7 +272,8 @@ public class CollidableObject extends Object {
         }
 
         if (neighborCount > 0) {
-            Vector2D desiredForce = totalForce.divide(neighborCount).truncate(maxForce).multiply(weight);
+            Vector2D desiredForce =
+                    totalForce.divide(neighborCount).truncate(maxForce).multiply(weight);
             addForce(desiredForce);
         }
     }
@@ -278,12 +287,8 @@ public class CollidableObject extends Object {
 
         Vector2D acceleration = force.clone().truncate(maxForce).multiply(invMass)
                 .divide(getUpdatePeriod());
-        Vector2D velocity = getVelocity().clone();
-
-        velocity.multiply(1.0f - friction);
-        velocity.add(acceleration);
-
-        return velocity;
+        return getVelocity().clone().multiply(1.0f - friction).add(acceleration)
+                .truncate(maxVelocity);
     }
 
     /**
@@ -345,28 +350,10 @@ public class CollidableObject extends Object {
     public Vector2D getFuturePositionVector(int numberOfUpdate) {
 
         Vector2D position = getPositionVector();
-        Vector2D velocity = getVelocity();
+        Vector2D velocity = estimateFutureVelocityUsingForce(force);
 
         for (int nUpdate = 0; nUpdate < numberOfUpdate; ++nUpdate) {
             position.add(velocity);
-        }
-
-        return position;
-    }
-
-    /**
-     *
-     * @param direction
-     * @param numberOfUpdate
-     * @return
-     */
-    protected Vector2D getVirtualPositionVector(float direction, int numberOfUpdate) {
-
-        Vector2D position = getPositionVector();
-        Vector2D virtualVelocity = new Vector2D(direction).multiply(getVelocity().length());
-
-        for (int nUpdate = 0; nUpdate < numberOfUpdate; ++nUpdate) {
-            position.add(virtualVelocity);
         }
 
         return position;
@@ -629,7 +616,7 @@ public class CollidableObject extends Object {
      *
      * @return
      */
-    boolean isCollisionChecked() {
+    public boolean isCollisionChecked() {
 
         return collisionChecked;
     }
@@ -638,7 +625,7 @@ public class CollidableObject extends Object {
      *
      * @param collisionChecked
      */
-    void setCollisionChecked(boolean collisionChecked) {
+    public void setCollisionChecked(boolean collisionChecked) {
 
         this.collisionChecked = collisionChecked;
     }

@@ -12,7 +12,6 @@ import androidx.core.util.Pair;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Sprite {
 
@@ -29,9 +28,9 @@ public class Sprite {
         private int fontColor = Color.argb(255, 255, 255, 255);
         private Paint.Align textAlign = Paint.Align.LEFT;
         private int bgColor = Color.argb(0, 0, 0, 0);
-        private Point position = new Point();
-        private Point positionOffset = new Point();
-        private Size size = new Size(0, 0);
+        private PointF position = new PointF();
+        private PointF positionOffset = new PointF();
+        private SizeF size = new SizeF();
         private int layer = 0;
         private float depth = 0.0f;
         private float rotation = 0.0f;
@@ -56,15 +55,15 @@ public class Sprite {
             this.bgColor = bgColor;
             this.textAlign = align;
         }
-        public Builder position(Point position) {
+        public Builder position(PointF position) {
             this.position = position;
             return this;
         }
-        public Builder positionOffset(Point positionOffset) {
+        public Builder positionOffset(PointF positionOffset) {
             this.positionOffset = positionOffset;
             return this;
         }
-        public Builder size(Size size) {
+        public Builder size(SizeF size) {
             this.size = size;
             return this;
         }
@@ -88,8 +87,8 @@ public class Sprite {
             this.visible = visible;
             return this;
         }
-        public Builder gridSize(Size gridSize) {
-            this.gridSize = gridSize;
+        public Builder gridSize(int cols, int rows) {
+            this.gridSize = new Size(cols, rows);
             return this;
         }
         public Builder smooth(boolean smooth) {
@@ -133,46 +132,6 @@ public class Sprite {
         load();
     }
 
-    public Sprite(Sprite copy) {
-        position        = copy.position.clone();
-        positionOffset  = copy.positionOffset.clone();
-        size            = copy.size.clone();
-        if (rawData != null) {
-            rawData     = Arrays.copyOf(copy.rawData, copy.rawData.length);
-        }
-        else {
-            rawData     = null;
-        }
-        text            = copy.text;
-        fontSize        = copy.fontSize;
-        fontColor       = copy.fontColor;
-        bgColor         = copy.bgColor;
-        textAlign       = Paint.Align.valueOf(copy.textAlign.toString());
-        layer           = copy.layer;
-        depth           = copy.depth;
-        opaque          = copy.opaque;
-        colorize        = copy.colorize;
-        rotation        = copy.rotation;
-        name            = copy.name;
-        visible         = copy.visible;
-        gridSize        = copy.gridSize.clone();
-        smooth          = copy.smooth;
-        animation       = new ArrayList<>();
-        for (Pair<Point, Integer> frame: copy.animation) {
-            Pair<Point, Integer> frameCopy = new Pair<>(frame.first.clone(), frame.second);
-            animation.add(frameCopy);
-        }
-        currentAnimationIndex = 0;
-        currentAnimationStayingTime = 0;
-
-        load();
-    }
-
-    @Override
-    public Sprite clone() {
-        return new Sprite(this);
-    }
-
     private byte[] drawTextToByteArray(String text, float fontSize, int fontColor, Paint.Align align) {
         if (fontSize < 8.0f)
             fontSize = 8.0f;
@@ -190,7 +149,7 @@ public class Sprite {
         // Creates a new mutable bitmap, with 128px of width and height
         //int bitmapWidth = (int) (realTextWidth + 2.0f);
         //int bitmapHeight = (int) aFontSize + 2;
-        Bitmap textBitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888);
+        Bitmap textBitmap = Bitmap.createBitmap((int)size.width, (int)size.height, Bitmap.Config.ARGB_8888);
         textBitmap.eraseColor(bgColor);
         // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
         Canvas bitmapCanvas = new Canvas(textBitmap);
@@ -297,7 +256,7 @@ public class Sprite {
      *
      * @return
      */
-    public Point getPosition() {
+    public PointF getPosition() {
         return position;
     }
 
@@ -305,7 +264,7 @@ public class Sprite {
      *
      * @param position
      */
-    public void setPosition(Point position) {
+    public void setPosition(PointF position) {
         this.position = position;
     }
 
@@ -313,7 +272,7 @@ public class Sprite {
      *
      * @return
      */
-    public Size getSize() {
+    public SizeF getSize() {
         return size;
     }
 
@@ -321,7 +280,7 @@ public class Sprite {
      *
      * @param size
      */
-    public void setSize(Size size) {
+    public void setSize(SizeF size) {
         this.size = size;
     }
 
@@ -439,11 +398,12 @@ public class Sprite {
 
     /**
      *
-     * @param gridIndex
+     * @param cols
+     * @param rows
      */
-    public void setGridIndex(Point gridIndex) {
+    public void setGridIndex(int cols, int rows) {
         animation.clear();
-        animation.add(new Pair<>(gridIndex, 1));
+        animation.add(new Pair<>(new Point(cols, rows), 1));
         this.currentAnimationIndex = 0;
         this.currentAnimationStayingTime = 0;
     }
@@ -463,8 +423,8 @@ public class Sprite {
      * @param gridIndex
      * @param stayingTime
      */
-    public void addAnimationFrame(Point gridIndex, int stayingTime) {
-        this.animation.add(new Pair<>(gridIndex, stayingTime));
+    public void addAnimationFrame(int cols, int rows, int stayingTime) {
+        this.animation.add(new Pair<>(new Point(cols, rows), stayingTime));
         this.currentAnimationIndex = 0;
         this.currentAnimationStayingTime = 0;
     }
@@ -516,7 +476,7 @@ public class Sprite {
      *
      * @return
      */
-    public Point getPositionOffset() {
+    public PointF getPositionOffset() {
         return positionOffset;
     }
 
@@ -524,7 +484,7 @@ public class Sprite {
      *
      * @param positionOffset
      */
-    public void setPositionOffset(Point positionOffset) {
+    public void setPositionOffset(PointF positionOffset) {
         this.positionOffset = positionOffset;
     }
 
@@ -539,8 +499,8 @@ public class Sprite {
     private Paint.Align textAlign;
     private int id;
     private int layer;
-    private Point position;
-    private Size size;
+    private PointF position;
+    private SizeF size;
     private float opaque;
     private float rotation;
     private float depth;
@@ -548,14 +508,14 @@ public class Sprite {
     private boolean smooth;
     private Size gridSize;
     private float[] colorize;
-    private Point positionOffset;
+    private PointF positionOffset;
     private ArrayList<Pair<Point, Integer>> animation;
     private int currentAnimationIndex = 0;
     private int currentAnimationStayingTime = 0;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);
-    private native void nSetProperties(int id, int x, int y, int width, int height, int layer,
+    private native void nSetProperties(int id, float x, float y, float width, float height, int layer,
                                        float depth, float opaque, float[] colorize,
                                        float rotation, boolean visible,
                                        int gridCol, int gridRow);

@@ -45,7 +45,7 @@ public class CubeCoord {
         fromOffsetCoord(offsetCoord);
     }
 
-    public CubeCoord(Point gameCoord) {
+    public CubeCoord(PointF gameCoord) {
         fromGameCoord(gameCoord);
     }
 
@@ -133,10 +133,10 @@ public class CubeCoord {
      *
      * @return
      */
-    public Point toGameCoord() {
+    public PointF toGameCoord() {
 
-        return new Point((int)(hexSize * (SQRT3 * x + SQRT3 / 2 * z)),
-                (int)(hexSize * (3.0f / 2 * z)));
+        return new PointF(hexSize * (SQRT3 * x + SQRT3 / 2 * z),
+                hexSize * (3.0f / 2 * z));
 
     }
 
@@ -144,7 +144,7 @@ public class CubeCoord {
      *
      * @param pt
      */
-    public void fromGameCoord(Point pt) {
+    public void fromGameCoord(PointF pt) {
 
         float x = (SQRT3 / 3 * pt.x - 1.0f / 3 * pt.y) / hexSize;
         float z = (2.0f / 3 * pt.y) / hexSize;

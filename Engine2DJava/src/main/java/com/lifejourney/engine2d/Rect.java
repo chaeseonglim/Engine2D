@@ -30,6 +30,13 @@ public class Rect {
         height = rect.height;
     }
 
+    public Rect(RectF rect) {
+        x = (int)rect.x;
+        y = (int)rect.y;
+        width = (int)rect.width;
+        height = (int)rect.height;
+    }
+
     /**
      *
      * @param a

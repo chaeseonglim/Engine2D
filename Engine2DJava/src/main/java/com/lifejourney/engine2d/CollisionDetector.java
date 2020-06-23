@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-class CollisionDetector {
+public class CollisionDetector {
 
     private static final String LOG_TAG = "CollisionDetector";
 
@@ -26,7 +26,7 @@ class CollisionDetector {
      * @param B
      * @return
      */
-    boolean checkAndReponseCollision(CollidableObject A, CollidableObject B, boolean response) {
+    public boolean checkAndReponseCollision(CollidableObject A, CollidableObject B, boolean response) {
         // Check if collision occurs
         Manifold manifold = getCollisionState(A, B);
         if (manifold == null) {
