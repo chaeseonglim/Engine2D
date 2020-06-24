@@ -22,8 +22,9 @@ public class Sprite {
         private String name;
 
         // optional
+        private String asset;
+        private String text;
         private byte[] data = null;
-        private String text = "";
         private float fontSize = 0.0f;
         private int fontColor = Color.argb(255, 255, 255, 255);
         private Paint.Align textAlign = Paint.Align.LEFT;
@@ -40,15 +41,19 @@ public class Sprite {
         private Size gridSize = new Size(1, 1);
         private boolean smooth = true;
 
-        public Builder(String name) {
+        public Builder(String asset) {
+            this.name = this.asset = asset;
+        }
+        public Builder(String name, String asset) {
             this.name = name;
+            this.asset = asset;
         }
         public Builder(String name, byte[] data) {
-            this.name = name;
+            this.name = this.asset = name;
             this.data = data;
         }
         public Builder(String name, String text, float fontSize, int fontColor, int bgColor, Paint.Align align) {
-            this.name = name;
+            this.name = this.asset = name;
             this.text = text;
             this.fontSize = fontSize;
             this.fontColor = fontColor;
@@ -108,11 +113,13 @@ public class Sprite {
     };
 
     private Sprite(Builder builder) {
+        name            = builder.name;
+        asset           = builder.asset;
+        rawData         = builder.data;
+        text            = builder.text;
         position        = builder.position;
         positionOffset  = builder.positionOffset;
         size            = builder.size;
-        rawData         = builder.data;
-        text            = builder.text;
         fontSize        = builder.fontSize;
         fontColor       = builder.fontColor;
         bgColor         = builder.bgColor;
@@ -122,7 +129,6 @@ public class Sprite {
         opaque          = builder.opaque;
         colorize        = builder.colorize;
         rotation        = builder.rotation;
-        name            = builder.name;
         visible         = builder.visible;
         gridSize        = builder.gridSize;
         smooth          = builder.smooth;
@@ -188,17 +194,17 @@ public class Sprite {
      * @return
      */
     public boolean load() {
-        if (!text.isEmpty() && rawData == null) {
+        if (text != null && rawData == null) {
             rawData = drawTextToByteArray(text, fontSize, fontColor, textAlign);
         }
 
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
         if (rawData != null) {
             // In case of text, always refresh texture
-            if (!text.isEmpty()) {
-                resourceManager.releaseTexture(name);
+            if (text != null) {
+                resourceManager.releaseTexture(asset);
             }
-            if (!resourceManager.loadTexture(name, rawData, smooth)) {
+            if (!resourceManager.loadTexture(asset, rawData, smooth)) {
                 Log.e(LOG_TAG, "Failed to load texture");
                 return false;
             }
@@ -207,13 +213,13 @@ public class Sprite {
             rawData = null;
         }
         else {
-            if (!resourceManager.loadTexture(name, smooth)) {
+            if (!resourceManager.loadTexture(asset, smooth)) {
                 Log.e(LOG_TAG, "Failed to load texture");
                 return false;
             }
         }
 
-        id = nCreateSprite(name, gridSize.width, gridSize.height);
+        id = nCreateSprite(asset, gridSize.width, gridSize.height);
         if (id == INVALID_ID) {
             Log.e(LOG_TAG, "Failed to create sprite");
             return false;
@@ -420,7 +426,8 @@ public class Sprite {
 
     /**
      *
-     * @param gridIndex
+     * @param cols
+     * @param rows
      * @param stayingTime
      */
     public void addAnimationFrame(int cols, int rows, int stayingTime) {
@@ -488,9 +495,18 @@ public class Sprite {
         this.positionOffset = positionOffset;
     }
 
+    /**
+     *
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
     private final int INVALID_ID = -1;
 
     private String name;
+    private String asset;
     private byte[] rawData;
     private String text;
     private float fontSize;

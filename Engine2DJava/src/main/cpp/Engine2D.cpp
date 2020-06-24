@@ -269,17 +269,17 @@ Java_com_lifejourney_engine2d_Sprite_nDestroySprite(JNIEnv *env, jobject thiz, j
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_lifejourney_engine2d_Sprite_nSetProperties(JNIEnv *env, jobject thiz, jint id, jint x, jint y,
-                                    jint width, jint height, jint layer, jfloat depth,
-                                    jfloat opaque, jfloatArray colorize, jfloat rotation,
-                                    jboolean visible, jint gridCol, jint gridRow) {
+Java_com_lifejourney_engine2d_Sprite_nSetProperties(JNIEnv *env, jobject thiz, jint id,
+                                    jfloat x, jfloat y, jfloat width, jfloat height,
+                                    jint layer, jfloat depth, jfloat opaque, jfloatArray colorize,
+                                    jfloat rotation, jboolean visible, jint gridCol, jint gridRow) {
     auto sprite = SpriteManager::getInstance()->get(id);
     if (sprite == nullptr) {
         ALOGW("Invalid sprite %d", id);
         return;
     }
 
-    sprite->setPosition(glm::vec2((float) x, (float) y));
+    sprite->setPosition(glm::vec2(x, y));
     sprite->setSize(glm::vec2(width, height));
     sprite->setOpaque(opaque);
     sprite->setLayer(layer);

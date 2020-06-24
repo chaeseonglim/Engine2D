@@ -1,5 +1,6 @@
 package com.lifejourney.engine2d;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import java.util.ArrayList;
@@ -112,7 +113,10 @@ public class Object implements Comparable<Object> {
 
         for (int i = 0; i < sprites.size(); ++i) {
             Sprite sprite = sprites.get(i).first;
-            if (sprites.get(i).second) {
+            assert sprite != null;
+
+            Boolean autoUpdate = sprites.get(i).second;
+            if (autoUpdate != null && autoUpdate) {
                 sprite.setPosition(position.clone());
                 sprite.setDepth(depth + 0.1f*i);
                 sprite.setLayer(layer);
@@ -129,7 +133,7 @@ public class Object implements Comparable<Object> {
      * @return
      */
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(@NonNull Object o) {
 
         if (o == this) {
             return 0;
@@ -184,16 +188,22 @@ public class Object implements Comparable<Object> {
      *
      * @return
      */
-    public ArrayList<Pair<Sprite, Boolean>> getSprites() {
-        return sprites;
+    public Sprite getSprite(int i) {
+        return sprites.get(i).first;
     }
 
     /**
      *
+     * @param name
      * @return
      */
-    public Sprite getSprite(int i) {
-        return sprites.get(i).first;
+    public Sprite getSprite(String name) {
+        for (Pair<Sprite, Boolean> item: sprites) {
+            if (item.first.getName().equals(name)) {
+                return item.first;
+            }
+        }
+        return null;
     }
 
     /**

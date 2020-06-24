@@ -227,6 +227,61 @@ public class CubeCoord {
         return (Math.abs(x - cubeCoord.x) + Math.abs(y - cubeCoord.y) + Math.abs(z - cubeCoord.z)) / 2;
     }
 
+    /**
+     *
+     * @param cubeCoord
+     * @return
+     */
+    public boolean isAdjacent(CubeCoord cubeCoord) {
+        int xDiff = Math.abs(x - cubeCoord.x);
+        int yDiff = Math.abs(y - cubeCoord.y);
+        int zDiff = Math.abs(z - cubeCoord.z);
+
+        return (Math.max(Math.max(xDiff, yDiff),zDiff) == 1);
+    }
+
+    public enum Direction {
+        TOP_LEFT,
+        TOP_RIGHT,
+        RIGHT,
+        BOTTOM_RIGHT,
+        BOTTOM_LEFT,
+        LEFT,
+        UNKNOWN
+    }
+
+    /**
+     *
+     * @param cubeCoord
+     * @return
+     */
+    public Direction getDirection(CubeCoord cubeCoord) {
+        int xDiff = cubeCoord.x - x;
+        int yDiff = cubeCoord.y - y;
+        int zDiff = cubeCoord.z - z;
+        if (xDiff == 0 && yDiff > 0 && zDiff < 0) {
+            return Direction.TOP_LEFT;
+        }
+        else if (xDiff > 0 && yDiff == 0 && zDiff < 0) {
+            return Direction.TOP_RIGHT;
+        }
+        else if (xDiff == 0 && yDiff < 0 && zDiff > 0) {
+            return Direction.BOTTOM_RIGHT;
+        }
+        else if (xDiff < 0 && yDiff == 0 && zDiff > 0) {
+            return Direction.BOTTOM_LEFT;
+        }
+        else if (xDiff < 0 && yDiff > 0 && zDiff == 0) {
+            return Direction.LEFT;
+        }
+        else if (xDiff > 0 && yDiff < 0 && zDiff == 0) {
+            return Direction.RIGHT;
+        }
+        else {
+            return Direction.UNKNOWN;
+        }
+    }
+
     private static final float SQRT3 = (float)Math.sqrt(3);
     private static int hexSize = 0;
 

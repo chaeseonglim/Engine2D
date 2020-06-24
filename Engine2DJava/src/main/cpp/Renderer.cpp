@@ -280,6 +280,7 @@ void Renderer::draw(ThreadState *threadState) {
         SpriteManager::SpriteList spriteList = SpriteManager::getInstance()->getSpriteList();
         //ALOGE("Number of sprites: %d", (int)spriteList.size());
         for (auto &sprite: spriteList) {
+            //ALOGE("layer: %d depth: %f", sprite->getLayer(), sprite->getDepth());
             sprite->draw(projection, model);
         }
 

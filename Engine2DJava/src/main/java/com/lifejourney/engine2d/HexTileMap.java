@@ -1,7 +1,5 @@
 package com.lifejourney.engine2d;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -234,10 +232,7 @@ public abstract class HexTileMap {
 
         OffsetCoord.SetHexSize(hexSize);
         CubeCoord.SetHexSize(hexSize);
-        //tileSize = new SizeF(Math.round(SQRT3 * hexSize), 2 * hexSize);
         tileSize = new SizeF(SQRT3 * hexSize, 2 * hexSize);
-        //tileSize = new SizeF(114, 130);
-        Log.e(LOG_TAG, "AA " + hexSize + " " + getTileSize().width + " " + getTileSize().height);
     }
 
     /**

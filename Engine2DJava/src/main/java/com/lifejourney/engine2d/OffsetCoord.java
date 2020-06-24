@@ -169,6 +169,7 @@ public class OffsetCoord {
      * @param y
      */
     public void offset(int x, int y) {
+
         this.x += x;
         this.y += y;
     }
@@ -188,6 +189,7 @@ public class OffsetCoord {
      * @return
      */
     public ArrayList<OffsetCoord> getNeighbors() {
+
         ArrayList<OffsetCoord> neighbors = new ArrayList<>();
         if ((y & 1) == 0) {
             neighbors.add(new OffsetCoord(x + 1, y));
@@ -206,6 +208,16 @@ public class OffsetCoord {
             neighbors.add(new OffsetCoord(x + 1, y + 1));
         }
         return neighbors;
+    }
+
+    /**
+     *
+     * @param offsetCoord
+     * @return
+     */
+    public CubeCoord.Direction getDirection(OffsetCoord offsetCoord) {
+
+        return toCubeCoord().getDirection(offsetCoord.toCubeCoord());
     }
 
     private static final float SQRT3 = (float)Math.sqrt(3);

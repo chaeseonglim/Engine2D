@@ -26,7 +26,7 @@ public class ResourceManager {
      * @return
      */
     boolean loadTexture(String asset, boolean smooth) {
-        boolean result = false;
+        boolean result;
 
         try {
             if (!nIsTextureLoaded(asset)) {
