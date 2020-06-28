@@ -395,7 +395,14 @@ public class Sprite {
         int maxStayingTime = animation.get(currentAnimationIndex).second;
 
         if (++currentAnimationStayingTime >= maxStayingTime) {
-            currentAnimationIndex = (currentAnimationIndex + 1) % animation.size();
+            if (currentAnimationIndex + 1 >= animation.size()) {
+                if (animationWrap) {
+                    currentAnimationIndex = 0;
+                }
+            }
+            else {
+                currentAnimationIndex++;
+            }
             currentAnimationStayingTime = 0;
         }
 
@@ -441,6 +448,22 @@ public class Sprite {
      */
     public void clearAnimation() {
         this.animation.clear();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Pair<Point, Integer>> getAnimation() {
+        return animation;
+    }
+
+    /**
+     *
+     * @param animationWrap
+     */
+    public void setAnimationWrap(boolean animationWrap) {
+        this.animationWrap = animationWrap;
     }
 
     /**
@@ -528,6 +551,7 @@ public class Sprite {
     private ArrayList<Pair<Point, Integer>> animation;
     private int currentAnimationIndex = 0;
     private int currentAnimationStayingTime = 0;
+    private boolean animationWrap = false;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);

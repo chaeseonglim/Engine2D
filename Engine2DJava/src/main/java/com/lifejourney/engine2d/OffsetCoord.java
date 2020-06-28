@@ -8,12 +8,14 @@ public class OffsetCoord {
 
     private final static String LOG_TAG = "OffsetCoord";
 
+    private static int HexSize = 0;
+
     /**
      *
      * @return
      */
     public static int GetHexSize() {
-        return OffsetCoord.hexSize;
+        return OffsetCoord.HexSize;
     }
 
     /**
@@ -21,7 +23,7 @@ public class OffsetCoord {
      * @param hexSize
      */
     public static void SetHexSize(int hexSize) {
-        OffsetCoord.hexSize = hexSize;
+        OffsetCoord.HexSize = hexSize;
     }
 
 
@@ -109,7 +111,7 @@ public class OffsetCoord {
      */
     public PointF toGameCoord() {
 
-        return new PointF((float)(hexSize * SQRT3 * (x + 0.5 * (y & 1))), (float)hexSize * 3/2 * y);
+        return new PointF((float)(HexSize * SQRT3 * (x + 0.5 * (y & 1))), (float) HexSize * 3/2 * y);
 
     }
 
@@ -221,7 +223,6 @@ public class OffsetCoord {
     }
 
     private static final float SQRT3 = (float)Math.sqrt(3);
-    private static int hexSize = 0;
 
     private int x;
     private int y;

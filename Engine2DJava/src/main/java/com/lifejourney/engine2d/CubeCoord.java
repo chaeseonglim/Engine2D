@@ -8,12 +8,14 @@ public class CubeCoord {
 
     private final String LOG_TAG = "CubeCoord";
 
+    private static int HexSize = 0;
+
     /**
      *
      * @return
      */
     public static int GetHexSize() {
-        return hexSize;
+        return HexSize;
     }
 
     /**
@@ -21,7 +23,7 @@ public class CubeCoord {
      * @param hexSize
      */
     public static void SetHexSize(int hexSize) {
-        CubeCoord.hexSize = hexSize;
+        CubeCoord.HexSize = hexSize;
     }
 
     public CubeCoord() {
@@ -126,7 +128,7 @@ public class CubeCoord {
         x = offsetCoord.getX() - (offsetCoord.getY() - (offsetCoord.getY() & 1)) / 2;
         z = offsetCoord.getY();
         y = -x-z;
-        hexSize = offsetCoord.GetHexSize();
+        HexSize = offsetCoord.GetHexSize();
     }
 
     /**
@@ -135,8 +137,8 @@ public class CubeCoord {
      */
     public PointF toGameCoord() {
 
-        return new PointF(hexSize * (SQRT3 * x + SQRT3 / 2 * z),
-                hexSize * (3.0f / 2 * z));
+        return new PointF(HexSize * (SQRT3 * x + SQRT3 / 2 * z),
+                HexSize * (3.0f / 2 * z));
 
     }
 
@@ -146,8 +148,8 @@ public class CubeCoord {
      */
     public void fromGameCoord(PointF pt) {
 
-        float x = (SQRT3 / 3 * pt.x - 1.0f / 3 * pt.y) / hexSize;
-        float z = (2.0f / 3 * pt.y) / hexSize;
+        float x = (SQRT3 / 3 * pt.x - 1.0f / 3 * pt.y) / HexSize;
+        float z = (2.0f / 3 * pt.y) / HexSize;
         float y = -x-z;
 
         round(x, y, z);
@@ -283,7 +285,6 @@ public class CubeCoord {
     }
 
     private static final float SQRT3 = (float)Math.sqrt(3);
-    private static int hexSize = 0;
 
     private int x;
     private int y;
