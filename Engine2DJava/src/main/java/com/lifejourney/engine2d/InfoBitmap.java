@@ -12,13 +12,13 @@ public class InfoBitmap {
      *
      * @return
      */
-    public byte[][] get2DByteArray() {
-        byte[][] array = new byte[getHeight()][getWidth()];
+    public int[][] getInfoArray() {
+        int[][] array = new int[getHeight()][getWidth()];
         int[] row = new int[getWidth()];
         for (int y = 0; y < bitmap.getHeight(); ++y) {
             bitmap.getPixels(row, 0, getWidth(), 0, y, getWidth(), 1);
             for (int x = 0; x < bitmap.getWidth(); ++x) {
-                array[y][x] = (byte)(row[x] & 0x000000FF);
+                array[y][x] = row[x];
             }
         }
 
