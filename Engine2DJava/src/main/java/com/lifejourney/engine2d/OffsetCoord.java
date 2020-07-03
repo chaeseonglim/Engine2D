@@ -193,21 +193,22 @@ public class OffsetCoord {
     public ArrayList<OffsetCoord> getNeighbors() {
 
         ArrayList<OffsetCoord> neighbors = new ArrayList<>();
+        // Note: Its order is from top left to clock-wise direction
         if ((y & 1) == 0) {
-            neighbors.add(new OffsetCoord(x + 1, y));
-            neighbors.add(new OffsetCoord(x, y - 1));
             neighbors.add(new OffsetCoord(x - 1, y - 1));
-            neighbors.add(new OffsetCoord(x - 1, y));
-            neighbors.add(new OffsetCoord(x - 1, y + 1));
+            neighbors.add(new OffsetCoord(x, y - 1));
+            neighbors.add(new OffsetCoord(x + 1, y));
             neighbors.add(new OffsetCoord(x, y + 1));
+            neighbors.add(new OffsetCoord(x - 1, y + 1));
+            neighbors.add(new OffsetCoord(x - 1, y));
         }
         else {
-            neighbors.add(new OffsetCoord(x + 1, y));
-            neighbors.add(new OffsetCoord(x + 1, y - 1));
             neighbors.add(new OffsetCoord(x, y - 1));
-            neighbors.add(new OffsetCoord(x - 1, y));
-            neighbors.add(new OffsetCoord(x, y + 1));
+            neighbors.add(new OffsetCoord(x + 1, y - 1));
+            neighbors.add(new OffsetCoord(x + 1, y));
             neighbors.add(new OffsetCoord(x + 1, y + 1));
+            neighbors.add(new OffsetCoord(x, y + 1));
+            neighbors.add(new OffsetCoord(x - 1, y));
         }
         return neighbors;
     }

@@ -18,12 +18,6 @@ public abstract class HexTileMap {
      */
     public void close() {
 
-        for (HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry : spriteMap.entrySet()) {
-            ArrayList<Sprite> spriteList = entry.getValue();
-            for (Sprite sprite: spriteList) {
-                sprite.close();
-            }
-        }
         spriteMap.clear();
         refreshMap.clear();
     }
@@ -46,39 +40,45 @@ public abstract class HexTileMap {
 
     /**
      *
-     * @param offsetCoord
+     * @param mapCoord
      * @return
      */
-    protected abstract ArrayList<Sprite> getTileSprite(OffsetCoord offsetCoord);
+    protected abstract ArrayList<Sprite> getTileSprite(OffsetCoord mapCoord);
 
     /**
      *
-     * @param offsetCoord
+     * @param mapCoord
      * @return
      */
-    protected void flushTileSprite(OffsetCoord offsetCoord) {
+    public void redrawTileSprite(OffsetCoord mapCoord) {
 
-        refreshMap.put(offsetCoord, true);
+        refreshMap.put(mapCoord, true);
+    }
+
+    /**
+     *
+     * @param mapCoord
+     */
+    public void removeTileSprite(OffsetCoord mapCoord) {
+
+        // Do nothing here - it's up to child class
     }
 
     /**
      *
      */
-    private void removeUnusedSprites() {
+    private void removeSpritesOutsideOfScreen() {
 
         Rect regionToCache = getRegionToCache();
 
         Iterator<HashMap.Entry<OffsetCoord, ArrayList<Sprite>>> iter = spriteMap.entrySet().iterator();
         while (iter.hasNext()) {
             HashMap.Entry<OffsetCoord, ArrayList<Sprite>> entry = iter.next();
-            OffsetCoord offsetCoord = entry.getKey();
-            RectF spriteRegion = new RectF(new PointF(offsetCoord.toGameCoord()), tileSize);
+            OffsetCoord mapCoord = entry.getKey();
+            RectF spriteRegion = new RectF(new PointF(mapCoord.toGameCoord()), tileSize);
             spriteRegion.offset(-tileSize.width/2, -tileSize.height/2);
             if (!Rect.intersects(regionToCache, new Rect(spriteRegion))) {
-                ArrayList<Sprite> spriteList = entry.getValue();
-                for (Sprite sprite: spriteList) {
-                    sprite.close();
-                }
+                removeTileSprite(mapCoord);
                 iter.remove();
             }
         }
@@ -89,10 +89,10 @@ public abstract class HexTileMap {
      */
     public void update() {
 
-        // clean up unused spries
-        removeUnusedSprites();
+        // Clean up sprites at outside of screen
+        removeSpritesOutsideOfScreen();
 
-        // build up sprites
+        // Build up sprites map
         Size mapSize = getMapSize();
         Rect cachedRegion = getRegionToCache();
 
@@ -103,16 +103,11 @@ public abstract class HexTileMap {
 
         for (int y = Math.max(topLeft.getY(), 0); y < Math.min(bottomRight.getY(), mapSize.height); ++y) {
             for (int x = Math.max(topLeft.getX(), 0); x < Math.min(bottomRight.getX(), mapSize.width); ++x) {
-                OffsetCoord offsetCoord = new OffsetCoord(x, y);
-                ArrayList<Sprite> sprites = spriteMap.get(offsetCoord);
-                if (sprites == null || refreshMap.get(offsetCoord) != null) {
-                    if (sprites != null) {
-                        for (Sprite sprite : sprites) {
-                            sprite.close();
-                        }
-                    }
-                    spriteMap.put(offsetCoord, getTileSprite(offsetCoord));
-                    refreshMap.remove(offsetCoord);
+                OffsetCoord mapCoord = new OffsetCoord(x, y);
+                ArrayList<Sprite> sprites = spriteMap.get(mapCoord);
+                if (sprites == null || refreshMap.get(mapCoord) != null) {
+                    spriteMap.put(mapCoord, getTileSprite(mapCoord));
+                    refreshMap.remove(mapCoord);
                 }
             }
         }
@@ -201,7 +196,7 @@ public abstract class HexTileMap {
      *
      * @return
      */
-    public byte[][] getMapData() {
+    public int[][] getMapData() {
 
         return mapData;
     }
@@ -210,16 +205,16 @@ public abstract class HexTileMap {
      *
      * @return
      */
-    public byte getMapData(OffsetCoord offsetCoord) {
+    public int getMapData(OffsetCoord mapCoord) {
 
-        return mapData[offsetCoord.getY()][offsetCoord.getX()];
+        return mapData[mapCoord.getY()][mapCoord.getX()];
     }
 
     /**
      *
      * @param mapData
      */
-    public void setMapData(byte[][] mapData) {
+    public void setMapData(int[][] mapData) {
 
         this.mapData = mapData;
     }
@@ -253,7 +248,7 @@ public abstract class HexTileMap {
 
     private final static float SQRT3 = (float) Math.sqrt(3.0);
 
-    private byte[][] mapData;
+    private int[][] mapData;
     private HashMap<OffsetCoord, ArrayList<Sprite>> spriteMap = new HashMap<>();
     private HashMap<OffsetCoord, Boolean> refreshMap = new HashMap<>();
     private Size mapSize;
