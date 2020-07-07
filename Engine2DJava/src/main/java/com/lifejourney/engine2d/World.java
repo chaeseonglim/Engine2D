@@ -88,11 +88,11 @@ public class World {
 
         long dt = (long) (1000.0f / desiredFPS);
         while (accumulatedTime > dt) {
-            preupdate();
+            preUpdate();
             updateViews();
             updateObjects();
             updateWidgets();
-            postupdate();
+            postUpdate();
             accumulatedTime -= dt;
         }
     }
@@ -113,14 +113,14 @@ public class World {
     /**
      *
      */
-    protected void preupdate() {
+    protected void preUpdate() {
 
     }
 
     /**
      *
      */
-    protected void postupdate() {
+    protected void postUpdate() {
 
     }
 
@@ -298,7 +298,7 @@ public class World {
         return desiredFPS;
     }
 
-    private float desiredFPS = 20.0f;
+    private float desiredFPS = 30.0f;
     private long accumulatedTime;
     private long lastUpdateStartTime = System.currentTimeMillis();
 

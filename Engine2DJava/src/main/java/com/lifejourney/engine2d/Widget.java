@@ -2,7 +2,9 @@ package com.lifejourney.engine2d;
 
 import android.view.MotionEvent;
 
-public class Widget implements Controllable {
+import java.util.ArrayList;
+
+public abstract class Widget implements Controllable {
 
     private final String LOG_TAG = "Widget";
 
@@ -16,6 +18,11 @@ public class Widget implements Controllable {
      *
      */
     public void close() {
+
+        for (Sprite sprite: sprites) {
+            sprite.close();
+        }
+        sprites = null;
     }
 
     /**
@@ -46,8 +53,7 @@ public class Widget implements Controllable {
     /**
      *
      */
-    public void update() {
-    }
+    public abstract void update();
 
     /**
      *
@@ -57,7 +63,12 @@ public class Widget implements Controllable {
         Rect viewport = Engine2D.GetInstance().getViewport();
         screenRegion = new RectF(region);
         screenRegion.offset(viewport.x, viewport.y);
-    }
+
+        for (Sprite sprite: sprites) {
+            sprite.setPosition(screenRegion.center().clone());
+            sprite.commit();
+        }
+}
 
     /**
      *
@@ -103,6 +114,9 @@ public class Widget implements Controllable {
      */
     public void setVisible(boolean visible) {
         this.visible = visible;
+        for (Sprite sprite: sprites) {
+            sprite.setVisible(visible);
+        }
     }
 
     /**
@@ -147,9 +161,26 @@ public class Widget implements Controllable {
         this.depth = depth;
     }
 
+    /**
+     *
+     * @param sprite
+     */
+    public void addSprite(Sprite sprite) {
+        sprites.add(sprite);
+    }
+
+    /**
+     *
+     * @param sprite
+     */
+    public void removeSprite(Sprite sprite) {
+        sprites.remove(sprite);
+    }
+
     private Rect region;
     private RectF screenRegion;
     private int layer;
     private float depth;
     private boolean visible = false;
+    private ArrayList<Sprite> sprites = new ArrayList<>();
 }
