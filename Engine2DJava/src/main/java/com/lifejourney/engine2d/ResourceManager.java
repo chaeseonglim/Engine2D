@@ -3,6 +3,7 @@ package com.lifejourney.engine2d;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.Log;
 
@@ -17,6 +18,15 @@ public class ResourceManager {
 
     public ResourceManager(Context context) {
         this.context = context;
+    }
+
+    /**
+     *
+     * @param asset
+     * @return
+     */
+    public Typeface loadTypeface(String asset) {
+        return Typeface.createFromAsset(context.getAssets(), asset);
     }
 
     /**

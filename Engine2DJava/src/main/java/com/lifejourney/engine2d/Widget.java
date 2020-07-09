@@ -4,7 +4,7 @@ import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
-public abstract class Widget implements Controllable {
+public class Widget implements Controllable {
 
     private final String LOG_TAG = "Widget";
 
@@ -23,6 +23,11 @@ public abstract class Widget implements Controllable {
             sprite.close();
         }
         sprites = null;
+
+        for (Widget widget: widgets) {
+            widget.close();
+        }
+        widgets = null;
     }
 
     /**
@@ -37,6 +42,11 @@ public abstract class Widget implements Controllable {
             return false;
         }
         else {
+            for (Widget widget: widgets) {
+                if (widget.onTouchEvent(event)) {
+                    return true;
+                }
+            }
             return checkIfInputEventInRegion(event);
         }
     }
@@ -53,7 +63,12 @@ public abstract class Widget implements Controllable {
     /**
      *
      */
-    public abstract void update();
+    public void update() {
+
+        for (Widget widget: widgets) {
+            widget.update();
+        }
+    }
 
     /**
      *
@@ -67,6 +82,10 @@ public abstract class Widget implements Controllable {
         for (Sprite sprite: sprites) {
             sprite.setPosition(screenRegion.center().clone());
             sprite.commit();
+        }
+
+        for (Widget widget: widgets) {
+            widget.commit();
         }
 }
 
@@ -116,6 +135,9 @@ public abstract class Widget implements Controllable {
         this.visible = visible;
         for (Sprite sprite: sprites) {
             sprite.setVisible(visible);
+        }
+        for (Widget widget: widgets) {
+            widget.setVisible(visible);
         }
     }
 
@@ -177,10 +199,27 @@ public abstract class Widget implements Controllable {
         sprites.remove(sprite);
     }
 
+    /**
+     *
+     * @param widget
+     */
+    public void addWidget(Widget widget) {
+        widgets.add(widget);
+    }
+
+    /**
+     *
+     * @param widget
+     */
+    public void removeWidget(Widget widget) {
+        widgets.remove(widget);
+    }
+
     private Rect region;
     private RectF screenRegion;
     private int layer;
     private float depth;
     private boolean visible = false;
     private ArrayList<Sprite> sprites = new ArrayList<>();
+    private ArrayList<Widget> widgets = new ArrayList<>();
 }

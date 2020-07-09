@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Typeface;
 import android.util.Log;
 
 import androidx.core.util.Pair;
@@ -40,6 +41,7 @@ public class Sprite {
         private boolean visible = false;
         private Size gridSize = new Size(1, 1);
         private boolean smooth = true;
+        private String fontName;
 
         public Builder(String asset) {
             this.name = this.asset = asset;
@@ -59,6 +61,10 @@ public class Sprite {
             this.fontColor = fontColor;
             this.bgColor = bgColor;
             this.textAlign = align;
+        }
+        public Builder fontName(String fontName) {
+            this.fontName = fontName;
+            return this;
         }
         public Builder position(PointF position) {
             this.position = position;
@@ -132,18 +138,27 @@ public class Sprite {
         visible         = builder.visible;
         gridSize        = builder.gridSize;
         smooth          = builder.smooth;
+        if (builder.fontName != null) {
+            ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
+            typeface = resourceManager.loadTypeface(builder.fontName);
+        } else {
+            typeface = Typeface.DEFAULT;
+        }
         animation = new ArrayList<>();
         animation.add(new Pair<>(new Point(0, 0), 1));
 
         load();
     }
 
-    private byte[] drawTextToByteArray(String text, float fontSize, int fontColor, Paint.Align align) {
+    private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize,
+                                       int fontColor, Paint.Align align) {
         if (fontSize < 8.0f)
             fontSize = 8.0f;
         if (fontSize > 500.0f)
             fontSize = 500.0f;
+
         Paint textPaint = new Paint();
+        textPaint.setTypeface(typeface);
         textPaint.setTextSize(fontSize);
         textPaint.setFakeBoldText(false);
         textPaint.setAntiAlias(true);
@@ -194,8 +209,9 @@ public class Sprite {
      * @return
      */
     public boolean load() {
+
         if (text != null && rawData == null) {
-            rawData = drawTextToByteArray(text, fontSize, fontColor, textAlign);
+            rawData = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
         }
 
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
@@ -232,6 +248,7 @@ public class Sprite {
      *
      */
     public void close() {
+
         if (id != INVALID_ID) {
             nDestroySprite(id);
             id = INVALID_ID;
@@ -242,6 +259,7 @@ public class Sprite {
      *
      */
     public void finalize() {
+
         if (id != INVALID_ID) {
             Log.w(LOG_TAG, "A sprite " + id + " is not properly closed");
             nDestroySprite(id);
@@ -252,10 +270,38 @@ public class Sprite {
      *
      */
     public void commit() {
+
         Point grid = getNextGridIndex();
         nSetProperties(id, position.x + positionOffset.x, position.y + positionOffset.y,
                 size.width, size.height, layer, depth, opaque,
                 colorize, rotation, visible, grid.x, grid.y);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public void setText(String text) {
+
+        this.text = text;
+        this.rawData = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
+
+        ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
+        resourceManager.releaseTexture(asset);
+
+        // Load texture
+        if (!resourceManager.loadTexture(asset, rawData, smooth)) {
+            Log.e(LOG_TAG, "Failed to load texture");
+        } else {
+            // Destroy and create sprite again
+            nDestroySprite(id);
+            id = nCreateSprite(asset, gridSize.width, gridSize.height);
+            if (id == INVALID_ID) {
+                Log.e(LOG_TAG, "Failed to create sprite");
+            }
+        }
+
+        rawData = null;
     }
 
     /**
@@ -552,6 +598,7 @@ public class Sprite {
     private int currentAnimationIndex = 0;
     private int currentAnimationStayingTime = 0;
     private boolean animationWrap = false;
+    private Typeface typeface;
 
     private native int nCreateSprite(String asset, int gridCols, int gridRows);
     private native void nDestroySprite(int id);
