@@ -453,7 +453,7 @@ public class Sprite {
     protected String name;
     protected String asset;
     protected byte[] rawBytes;
-    protected int id;
+    protected int id = INVALID_ID;
     protected int layer;
     protected PointF position;
     protected SizeF size;

@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Typeface;
-import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 
@@ -135,22 +134,13 @@ public class TextSprite extends Sprite {
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
         resourceManager.releaseTexture(asset);
 
-        // Load texture
         rawBytes = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
-        if (!resourceManager.loadTexture(asset, rawBytes, smooth)) {
-            Log.e(LOG_TAG, "Failed to load texture");
-            return false;
-        } else {
-            // Destroy and create sprite again
+        if (id != INVALID_ID) {
             nDestroySprite(id);
-            id = nCreateSprite(asset, gridSize.width, gridSize.height);
-            if (id == INVALID_ID) {
-                Log.e(LOG_TAG, "Failed to create sprite");
-                return false;
-            }
+            id = INVALID_ID;
         }
 
-        return true;
+        return super.load();
     }
 
     /**
