@@ -1,35 +1,22 @@
 package com.lifejourney.engine2d;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Typeface;
 import android.util.Log;
 
 import androidx.core.util.Pair;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class Sprite {
 
     private static String LOG_TAG = "Sprite";
 
-    public static class Builder {
+    public static class Builder<T extends Builder<T>> {
         // required parameter
         private String name;
 
         // optional
         private String asset;
-        private String text;
-        private byte[] data = null;
-        private float fontSize = 0.0f;
-        private int fontColor = Color.argb(255, 255, 255, 255);
-        private Paint.Align textAlign = Paint.Align.LEFT;
-        private int bgColor = Color.argb(0, 0, 0, 0);
+        private byte[] rawBytes = null;
         private PointF position = new PointF();
         private PointF positionOffset = new PointF();
         private SizeF size = new SizeF();
@@ -41,7 +28,6 @@ public class Sprite {
         private boolean visible = false;
         private Size gridSize = new Size(1, 1);
         private boolean smooth = true;
-        private String fontName;
 
         public Builder(String asset) {
             this.name = this.asset = asset;
@@ -50,86 +36,69 @@ public class Sprite {
             this.name = name;
             this.asset = asset;
         }
-        public Builder(String name, byte[] data) {
+        public Builder(String name, byte[] rawBytes) {
             this.name = this.asset = name;
-            this.data = data;
+            this.rawBytes = rawBytes;
         }
-        public Builder(String name, String text, float fontSize, int fontColor, int bgColor, Paint.Align align) {
-            this.name = this.asset = name;
-            this.text = text;
-            this.fontSize = fontSize;
-            this.fontColor = fontColor;
-            this.bgColor = bgColor;
-            this.textAlign = align;
-        }
-        public Builder fontName(String fontName) {
-            this.fontName = fontName;
-            return this;
-        }
-        public Builder position(PointF position) {
+        public T position(PointF position) {
             this.position = position;
-            return this;
+            return (T)this;
         }
-        public Builder positionOffset(PointF positionOffset) {
+        public T positionOffset(PointF positionOffset) {
             this.positionOffset = positionOffset;
-            return this;
+            return (T)this;
         }
-        public Builder size(SizeF size) {
+        public T size(SizeF size) {
             this.size = size;
-            return this;
+            return (T)this;
         }
-        public Builder layer(int layer) {
+        public T layer(int layer) {
             this.layer = layer;
-            return this;
+            return (T)this;
         }
-        public Builder depth(float depth) {
+        public T depth(float depth) {
             this.depth = depth;
-            return this;
+            return (T)this;
         }
-        public Builder opaque(float opaque) {
+        public T opaque(float opaque) {
             this.opaque = opaque;
-            return this;
+            return (T)this;
         }
-        public Builder rotation(float rotation) {
+        public T rotation(float rotation) {
             this.rotation = rotation;
-            return this;
+            return (T)this;
         }
-        public Builder visible(boolean visible) {
+        public T visible(boolean visible) {
             this.visible = visible;
-            return this;
+            return (T)this;
         }
-        public Builder gridSize(int cols, int rows) {
+        public T gridSize(int cols, int rows) {
             this.gridSize = new Size(cols, rows);
-            return this;
+            return (T)this;
         }
-        public Builder smooth(boolean smooth) {
+        public T smooth(boolean smooth) {
             this.smooth = smooth;
-            return this;
+            return (T)this;
 
         }
-        public Builder colorize(float r, float g, float b) {
+        public T colorize(float r, float g, float b) {
             this.colorize[0] = r;
             this.colorize[1] = g;
             this.colorize[2] = b;
-            return this;
+            return (T)this;
         }
         public Sprite build() {
-            return new Sprite(this);
+            return new Sprite(this, true);
         }
     };
 
-    private Sprite(Builder builder) {
+    protected Sprite(Builder builder, boolean needLoad) {
         name            = builder.name;
         asset           = builder.asset;
-        rawData         = builder.data;
-        text            = builder.text;
+        rawBytes        = builder.rawBytes;
         position        = builder.position;
         positionOffset  = builder.positionOffset;
         size            = builder.size;
-        fontSize        = builder.fontSize;
-        fontColor       = builder.fontColor;
-        bgColor         = builder.bgColor;
-        textAlign       = builder.textAlign;
         layer           = builder.layer;
         depth           = builder.depth;
         opaque          = builder.opaque;
@@ -138,70 +107,12 @@ public class Sprite {
         visible         = builder.visible;
         gridSize        = builder.gridSize;
         smooth          = builder.smooth;
-        if (builder.fontName != null) {
-            ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-            typeface = resourceManager.loadTypeface(builder.fontName);
-        } else {
-            typeface = Typeface.DEFAULT;
-        }
         animation = new ArrayList<>();
         animation.add(new Pair<>(new Point(0, 0), 1));
 
-        load();
-    }
-
-    private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize,
-                                       int fontColor, Paint.Align align) {
-        if (fontSize < 8.0f)
-            fontSize = 8.0f;
-        if (fontSize > 500.0f)
-            fontSize = 500.0f;
-
-        Paint textPaint = new Paint();
-        textPaint.setTypeface(typeface);
-        textPaint.setTextSize(fontSize);
-        textPaint.setFakeBoldText(false);
-        textPaint.setAntiAlias(true);
-        textPaint.setColor(fontColor);
-        // If a hinting is available on the platform you are developing, you should enable it (uncomment the line below).
-        //textPaint.setHinting(Paint.HINTING_ON);
-        textPaint.setSubpixelText(true);
-        textPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
-        // Creates a new mutable bitmap, with 128px of width and height
-        //int bitmapWidth = (int) (realTextWidth + 2.0f);
-        //int bitmapHeight = (int) aFontSize + 2;
-        Bitmap textBitmap = Bitmap.createBitmap((int)size.width, (int)size.height, Bitmap.Config.ARGB_8888);
-        textBitmap.eraseColor(bgColor);
-        // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
-        Canvas bitmapCanvas = new Canvas(textBitmap);
-        // Set start drawing position to [1, base_line_position]
-        // The base_line_position may vary from one font to another but it usually is equal to 75% of font size (height).
-        float y = textPaint.descent() - textPaint.ascent();
-
-        if (align == Paint.Align.CENTER) {
-            int lineSize = text.split("\n").length;
-            y += (size.height - y * lineSize) / 2 - 5;
+        if (needLoad) {
+            load();
         }
-        for (String line: text.split("\n")) {
-            int x;
-            float realTextWidth = textPaint.measureText(line);
-            if (align == Paint.Align.LEFT) {
-                x = 0;
-            }
-            else if (align == Paint.Align.CENTER) {
-                x = (int) ((size.width - realTextWidth) / 2);
-
-            }
-            else {
-                x = (int) (size.width - realTextWidth);
-            }
-            bitmapCanvas.drawText(line, x, y, textPaint);
-            y += textPaint.descent() - textPaint.ascent();
-        }
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream() ;
-        textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
-        return stream.toByteArray();
     }
 
     /**
@@ -210,23 +121,15 @@ public class Sprite {
      */
     public boolean load() {
 
-        if (text != null && rawData == null) {
-            rawData = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
-        }
-
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-        if (rawData != null) {
-            // In case of text, always refresh texture
-            if (text != null) {
-                resourceManager.releaseTexture(asset);
-            }
-            if (!resourceManager.loadTexture(asset, rawData, smooth)) {
+        if (rawBytes != null) {
+            if (!resourceManager.loadTexture(asset, rawBytes, smooth)) {
                 Log.e(LOG_TAG, "Failed to load texture");
                 return false;
             }
 
             // release memory
-            rawData = null;
+            rawBytes = null;
         }
         else {
             if (!resourceManager.loadTexture(asset, smooth)) {
@@ -275,33 +178,6 @@ public class Sprite {
         nSetProperties(id, position.x + positionOffset.x, position.y + positionOffset.y,
                 size.width, size.height, layer, depth, opaque,
                 colorize, rotation, visible, grid.x, grid.y);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public void setText(String text) {
-
-        this.text = text;
-        this.rawData = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
-
-        ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-        resourceManager.releaseTexture(asset);
-
-        // Load texture
-        if (!resourceManager.loadTexture(asset, rawData, smooth)) {
-            Log.e(LOG_TAG, "Failed to load texture");
-        } else {
-            // Destroy and create sprite again
-            nDestroySprite(id);
-            id = nCreateSprite(asset, gridSize.width, gridSize.height);
-            if (id == INVALID_ID) {
-                Log.e(LOG_TAG, "Failed to create sprite");
-            }
-        }
-
-        rawData = null;
     }
 
     /**
@@ -572,37 +448,31 @@ public class Sprite {
         return name;
     }
 
-    private final int INVALID_ID = -1;
+    protected final int INVALID_ID = -1;
 
-    private String name;
-    private String asset;
-    private byte[] rawData;
-    private String text;
-    private float fontSize;
-    private int fontColor;
-    private int bgColor;
-    private Paint.Align textAlign;
-    private int id;
-    private int layer;
-    private PointF position;
-    private SizeF size;
-    private float opaque;
-    private float rotation;
-    private float depth;
-    private boolean visible;
-    private boolean smooth;
-    private Size gridSize;
-    private float[] colorize;
-    private PointF positionOffset;
-    private ArrayList<Pair<Point, Integer>> animation;
-    private int currentAnimationIndex = 0;
-    private int currentAnimationStayingTime = 0;
-    private boolean animationWrap = false;
-    private Typeface typeface;
+    protected String name;
+    protected String asset;
+    protected byte[] rawBytes;
+    protected int id;
+    protected int layer;
+    protected PointF position;
+    protected SizeF size;
+    protected float opaque;
+    protected float rotation;
+    protected float depth;
+    protected boolean visible;
+    protected boolean smooth;
+    protected Size gridSize;
+    protected float[] colorize;
+    protected PointF positionOffset;
+    protected ArrayList<Pair<Point, Integer>> animation;
+    protected int currentAnimationIndex = 0;
+    protected int currentAnimationStayingTime = 0;
+    protected boolean animationWrap = false;
 
-    private native int nCreateSprite(String asset, int gridCols, int gridRows);
-    private native void nDestroySprite(int id);
-    private native void nSetProperties(int id, float x, float y, float width, float height, int layer,
+    protected native int nCreateSprite(String asset, int gridCols, int gridRows);
+    protected native void nDestroySprite(int id);
+    protected native void nSetProperties(int id, float x, float y, float width, float height, int layer,
                                        float depth, float opaque, float[] colorize,
                                        float rotation, boolean visible,
                                        int gridCol, int gridRow);
