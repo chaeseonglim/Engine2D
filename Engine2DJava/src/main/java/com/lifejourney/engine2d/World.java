@@ -100,28 +100,13 @@ public class World {
     /**
      *
      */
-    public void commit() {
-
-        Engine2D.GetInstance().lockDraw();
-        commitView();
-        commitObjects();
-        commitWidgets();
-        commitViewport();
-        Engine2D.GetInstance().unlockDraw();
-    }
-
-    /**
-     *
-     */
     protected void preUpdate() {
-
     }
 
     /**
      *
      */
     protected void postUpdate() {
-
     }
 
     /**
@@ -135,7 +120,7 @@ public class World {
     /**
      *
      */
-    private void updateObjects() {
+    protected void updateObjects() {
 
         PriorityQueue<Object> sortedObjects = new PriorityQueue<>();
         for (Object object : objects) {
@@ -159,6 +144,19 @@ public class World {
         for (Widget widget: widgets) {
             widget.update();
         }
+    }
+
+    /**
+     *
+     */
+    public void commit() {
+
+        Engine2D.GetInstance().lockDraw();
+        commitView();
+        commitObjects();
+        commitWidgets();
+        commitViewport();
+        Engine2D.GetInstance().unlockDraw();
     }
 
     /**

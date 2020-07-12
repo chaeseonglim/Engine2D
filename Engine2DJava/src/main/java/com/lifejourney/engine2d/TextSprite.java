@@ -9,6 +9,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Typeface;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 public class TextSprite extends Sprite {
 
@@ -69,6 +70,18 @@ public class TextSprite extends Sprite {
         }
 
         load();
+    }
+
+    @Override
+    public void commit() {
+
+        super.commit();
+
+        // Delete prev sprite after new sprite is drawn to prevent blinking
+        for (int id : spriteIDsToLazyDelete) {
+            nDestroySprite(id);
+        }
+        spriteIDsToLazyDelete.clear();
     }
 
     private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize,
@@ -136,7 +149,7 @@ public class TextSprite extends Sprite {
 
         rawBytes = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
         if (id != INVALID_ID) {
-            nDestroySprite(id);
+            spriteIDsToLazyDelete.add(id);
             id = INVALID_ID;
         }
 
@@ -159,4 +172,5 @@ public class TextSprite extends Sprite {
     private int bgColor;
     private Paint.Align textAlign;
     private Typeface typeface;
+    private ArrayList<Integer> spriteIDsToLazyDelete = new ArrayList<>();
 }
