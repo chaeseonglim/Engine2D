@@ -39,6 +39,14 @@ public class Rect {
 
     /**
      *
+     * @return
+     */
+    public Rect clone() {
+        return new Rect(this);
+    }
+
+    /**
+     *
      * @param a
      * @param b
      * @return

@@ -47,16 +47,20 @@ public class Widget implements Controllable {
                     return true;
                 }
             }
-            return checkIfInputEventInRegion(event);
+            return false;
         }
     }
 
+    /**
+     *
+     * @param event
+     * @return
+     */
     protected boolean checkIfInputEventInRegion(MotionEvent event) {
 
         PointF touchedPos = Engine2D.GetInstance().translateScreenToWidgetCoord(
                 new PointF(event.getX(), event.getY()));
 
-        // FIXME: it should be checked differently for such as dragging events
         return region.includes(touchedPos);
     }
 
