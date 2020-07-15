@@ -3,6 +3,8 @@ package com.lifejourney.engine2d;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.PriorityQueue;
 
 public class Widget implements Controllable {
 
@@ -24,6 +26,11 @@ public class Widget implements Controllable {
         }
         sprites = null;
 
+        for (Sprite sprite: spritesToRemove) {
+            sprite.close();
+        }
+        spritesToRemove = null;
+
         for (Widget widget: widgets) {
             widget.close();
         }
@@ -38,17 +45,22 @@ public class Widget implements Controllable {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (!isVisible()) {
-            return false;
-        }
-        else {
-            for (Widget widget: widgets) {
-                if (widget.onTouchEvent(event)) {
+        if (widgets.size() > 0) {
+            // controllables
+            PriorityQueue<Controllable> controllableSorted =
+                    new PriorityQueue<>(widgets.size(), World.controllableComparator);
+            for (Widget widget : widgets) {
+                controllableSorted.offer((Controllable)widget);
+            }
+            while (!controllableSorted.isEmpty()) {
+                Controllable controllable = controllableSorted.poll();
+                assert controllable != null;
+                if (controllable.onTouchEvent(event)) {
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     /**
@@ -87,6 +99,11 @@ public class Widget implements Controllable {
             sprite.setPosition(screenRegion.center().clone());
             sprite.commit();
         }
+        for (Sprite sprite: spritesToRemove) {
+            sprite.commit();
+            sprite.close();
+        }
+        spritesToRemove.clear();
 
         for (Widget widget: widgets) {
             widget.commit();
@@ -106,6 +123,7 @@ public class Widget implements Controllable {
      * @return
      */
     public Rect getRegion() {
+
         return region;
     }
 
@@ -114,6 +132,7 @@ public class Widget implements Controllable {
      * @return
      */
     public RectF getScreenRegion() {
+
         return screenRegion;
     }
 
@@ -121,6 +140,7 @@ public class Widget implements Controllable {
      *
      */
     public void show() {
+
         setVisible(true);
     }
 
@@ -128,6 +148,7 @@ public class Widget implements Controllable {
      *
      */
     public void hide() {
+
         setVisible(false);
     }
 
@@ -136,6 +157,7 @@ public class Widget implements Controllable {
      * @param visible
      */
     public void setVisible(boolean visible) {
+
         this.visible = visible;
         for (Sprite sprite: sprites) {
             sprite.setVisible(visible);
@@ -159,6 +181,7 @@ public class Widget implements Controllable {
      */
     @Override
     public int getLayer() {
+
         return layer;
     }
 
@@ -167,6 +190,7 @@ public class Widget implements Controllable {
      * @param layer
      */
     public void setLayer(int layer) {
+
         this.layer = layer;
     }
 
@@ -176,6 +200,7 @@ public class Widget implements Controllable {
      */
     @Override
     public float getDepth() {
+
         return depth;
     }
 
@@ -184,6 +209,7 @@ public class Widget implements Controllable {
      * @param depth
      */
     public void setDepth(float depth) {
+
         this.depth = depth;
     }
 
@@ -192,6 +218,8 @@ public class Widget implements Controllable {
      * @param sprite
      */
     public void addSprite(Sprite sprite) {
+
+        sprite.setVisible(visible);
         sprites.add(sprite);
     }
 
@@ -200,7 +228,27 @@ public class Widget implements Controllable {
      * @param sprite
      */
     public void removeSprite(Sprite sprite) {
+
+        sprite.hide();
+        spritesToRemove.add(sprite);
         sprites.remove(sprite);
+    }
+
+    /**
+     *
+     * @param name
+     */
+    public void removeSprites(String name) {
+
+        Iterator<Sprite> i = sprites.iterator();
+        while (i.hasNext()) {
+            Sprite sprite = i.next();
+            if (sprite.getName().equals(name)) {
+                sprite.hide();
+                spritesToRemove.add(sprite);
+                i.remove();
+            }
+        }
     }
 
     /**
@@ -208,6 +256,8 @@ public class Widget implements Controllable {
      * @param widget
      */
     public void addWidget(Widget widget) {
+
+        widget.setVisible(visible);
         widgets.add(widget);
     }
 
@@ -216,6 +266,8 @@ public class Widget implements Controllable {
      * @param widget
      */
     public void removeWidget(Widget widget) {
+
+        widget.close();
         widgets.remove(widget);
     }
 
@@ -225,5 +277,6 @@ public class Widget implements Controllable {
     private float depth;
     private boolean visible = false;
     private ArrayList<Sprite> sprites = new ArrayList<>();
+    private ArrayList<Sprite> spritesToRemove = new ArrayList<>();
     private ArrayList<Widget> widgets = new ArrayList<>();
 }

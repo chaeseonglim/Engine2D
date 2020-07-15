@@ -29,6 +29,9 @@ public class World {
         view = null;
     }
 
+    /**
+     *
+     */
     public static Comparator<Controllable> controllableComparator = new Comparator<Controllable>() {
 
         public int compare(Controllable cont1, Controllable cont2){

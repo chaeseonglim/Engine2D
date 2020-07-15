@@ -17,7 +17,6 @@ public class TextSprite extends Sprite {
 
     public static class Builder extends Sprite.Builder<Builder> {
         // required parameter
-        private String name;
         private String text;
         private float fontSize;
 
@@ -56,7 +55,6 @@ public class TextSprite extends Sprite {
     private TextSprite(Builder builder) {
 
         super(builder, false);
-        name            = builder.name;
         text            = builder.text;
         fontSize        = builder.fontSize;
         fontColor       = builder.fontColor;
@@ -74,6 +72,12 @@ public class TextSprite extends Sprite {
 
     @Override
     public void commit() {
+
+        for (int id : spriteIDsToLazyDelete) {
+            nSetProperties(id, position.x + positionOffset.x, position.y + positionOffset.y,
+                    size.width, size.height, layer, depth, opaque,
+                    colorize, rotation, false, 0, 0);
+        }
 
         super.commit();
 
