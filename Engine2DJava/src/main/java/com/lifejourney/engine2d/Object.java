@@ -107,10 +107,6 @@ public class Object implements Comparable<Object> {
      */
     public void commit() {
 
-        if (sprites == null) {
-            return;
-        }
-
         for (int i = 0; i < sprites.size(); ++i) {
             Sprite sprite = sprites.get(i).first;
             assert sprite != null;
@@ -198,12 +194,26 @@ public class Object implements Comparable<Object> {
      * @return
      */
     public Sprite getSprite(String name) {
+
         for (Pair<Sprite, Boolean> item: sprites) {
             if (item.first.getName().equals(name)) {
                 return item.first;
             }
         }
         return null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Sprite> getSprites() {
+
+        ArrayList<Sprite> sprites = new ArrayList<>();
+        for (Pair<Sprite, Boolean> item: this.sprites) {
+            sprites.add(item.first);
+        }
+        return sprites;
     }
 
     /**
