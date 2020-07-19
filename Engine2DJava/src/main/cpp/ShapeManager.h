@@ -2,8 +2,7 @@
 // Created by crims on 2020-04-19.
 //
 
-#ifndef RACINGFEVER_SHAPEMANAGER_H
-#define RACINGFEVER_SHAPEMANAGER_H
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -16,7 +15,7 @@
 namespace Engine2D
 {
 
-class ShapeManager {
+class ShapeManager final {
     // Prevent construct from outside
     struct ConstructorTag {
     };
@@ -50,5 +49,3 @@ private:
 };
 
 }
-
-#endif //RACINGFEVER_SHAPEMANAGER_H

@@ -26,12 +26,12 @@
 namespace Engine2D
 {
 
-class Sprite
+class Sprite final
 {
 public:
     Sprite() = default;
     Sprite(const std::shared_ptr<Texture>& texture, int gridCols = 1, int gridRows = 1);
-    virtual ~Sprite();
+    ~Sprite();
 
     void draw(const glm::mat4 &projection, const glm::mat4 &initialModel);
 

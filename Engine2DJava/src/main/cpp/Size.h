@@ -2,13 +2,11 @@
 // Created by crims on 2020-04-23.
 //
 
-#ifndef RACINGFEVER_SIZE_H
-#define RACINGFEVER_SIZE_H
-
+#pragma once
 
 namespace Engine2D {
 
-class Size {
+class Size final {
 
 public:
     Size() = default;
@@ -37,5 +35,3 @@ private:
 };
 
 }
-
-#endif //RACINGFEVER_SIZE_H

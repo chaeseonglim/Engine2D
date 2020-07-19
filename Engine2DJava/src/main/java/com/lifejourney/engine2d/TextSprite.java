@@ -8,8 +8,13 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Typeface;
 
+import androidx.core.util.Pair;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.UUID;
 
 public class TextSprite extends Sprite {
 
@@ -66,6 +71,7 @@ public class TextSprite extends Sprite {
         } else {
             typeface = Typeface.DEFAULT;
         }
+        originalAsset   = asset;
 
         load();
     }
@@ -73,8 +79,10 @@ public class TextSprite extends Sprite {
     @Override
     public void commit() {
 
-        for (int id : spriteIDsToLazyDelete) {
-            nSetProperties(id, position.x + positionOffset.x, position.y + positionOffset.y,
+        Iterator<Pair<Integer, Integer>> it = spriteIDsToLazyDelete.iterator();
+        while (it.hasNext()) {
+            nSetProperties(it.next().first,
+                    position.x + positionOffset.x, position.y + positionOffset.y,
                     size.width, size.height, layer, depth, opaque,
                     colorize, rotation, false, 0, 0);
         }
@@ -82,10 +90,16 @@ public class TextSprite extends Sprite {
         super.commit();
 
         // Delete prev sprite after new sprite is drawn to prevent blinking
-        for (int id : spriteIDsToLazyDelete) {
-            nDestroySprite(id);
+        ListIterator<Pair<Integer, Integer>> iit = spriteIDsToLazyDelete.listIterator();
+        while (iit.hasNext()) {
+            Pair<Integer, Integer> item = iit.next();
+            if (item.second == 1) {
+                nDestroySprite(item.first);
+                iit.remove();
+            } else {
+                iit.set(new Pair<>(item.first, item.second - 1));
+            }
         }
-        spriteIDsToLazyDelete.clear();
     }
 
     private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize,
@@ -148,12 +162,16 @@ public class TextSprite extends Sprite {
      */
     public boolean load() {
 
-        ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
-        resourceManager.releaseTexture(asset);
+        if (!asset.equals(originalAsset)) {
+            ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
+            resourceManager.releaseTexture(asset);
+        }
+
+        asset = originalAsset + UUID.randomUUID();
 
         rawBytes = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
         if (id != INVALID_ID) {
-            spriteIDsToLazyDelete.add(id);
+            spriteIDsToLazyDelete.add(new Pair<>(id, 1));
             id = INVALID_ID;
         }
 
@@ -171,10 +189,11 @@ public class TextSprite extends Sprite {
     }
 
     private String text;
+    private String originalAsset;
     private float fontSize;
     private int fontColor;
     private int bgColor;
     private Paint.Align textAlign;
     private Typeface typeface;
-    private ArrayList<Integer> spriteIDsToLazyDelete = new ArrayList<>();
+    private ArrayList<Pair<Integer, Integer>> spriteIDsToLazyDelete = new ArrayList<>();
 }

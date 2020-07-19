@@ -2,14 +2,13 @@
 // Created by crims on 2020-04-19.
 //
 
-#ifndef RACINGFEVER_TEXTURE_H
-#define RACINGFEVER_TEXTURE_H
+#pragma once
 
 #include <GLES3/gl3.h>
 
 namespace Engine2D {
 
-class Texture
+class Texture final
 {
 public:
     Texture(const GLchar *file, bool alpha, bool smooth);
@@ -18,7 +17,7 @@ public:
 
     void prepare(unsigned char* data);
     void cleanup();
-    void bind() const;
+    void bind();
 
     GLuint id() const { return mID; }
     bool isLoaded() const { return mLoaded; }
@@ -84,8 +83,8 @@ private:
     GLuint mFilterMax = GL_LINEAR; // Filtering mode if texture pixels > screen pixels
     bool mLoaded = false;
     bool mPrepared = false;
+    uint8_t* mImageBuffer = nullptr;
 };
 
 }
 
-#endif //RACINGFEVER_TEXTURE_H

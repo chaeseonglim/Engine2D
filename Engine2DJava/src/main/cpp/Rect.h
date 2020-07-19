@@ -2,13 +2,11 @@
 // Created by crims on 2020-04-23.
 //
 
-#ifndef RACINGFEVER_RECT_H
-#define RACINGFEVER_RECT_H
-
+#pragma once
 
 namespace Engine2D {
 
-class Rect {
+class Rect final {
 
 public:
     Rect() = default;
@@ -56,4 +54,3 @@ private:
 
 }
 
-#endif //RACINGFEVER_RECT_H

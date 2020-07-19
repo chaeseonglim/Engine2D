@@ -193,8 +193,10 @@ std::unique_ptr<Sprite::ProgramState> Sprite::sProgramState = nullptr;
 
 bool Sprite::initProgram()
 {
-    if (sProgramState == nullptr)
-        sProgramState.reset(new Sprite::ProgramState);
+    if (sProgramState == nullptr) {
+        Sprite::ProgramState* state = new Sprite::ProgramState();
+        sProgramState.reset(state);
+    }
     for (size_t i = 0; i < ProgramState::PROGRAM_TYPE_COUNT; ++i) {
         if (sProgramState->programs[(ProgramState::ProgramType)i].program == 0) {
             return false;
@@ -297,7 +299,7 @@ void Sprite::prepareInternal()
     bool error = false;
 
     ProgramState &state = *Sprite::sProgramState;
-    ProgramState::ProgramType programType = ProgramState::ProgramType::PROGRAM_OPAQUE;
+    ProgramState::ProgramType programType;
     if (mOpaque == 1.0f) {
         if (mColorize.r != 1.0f || mColorize.g != 1.0f || mColorize.b != 1.0f) {
             programType = ProgramState::ProgramType::PROGRAM_OPAQUE_COLORIZE;

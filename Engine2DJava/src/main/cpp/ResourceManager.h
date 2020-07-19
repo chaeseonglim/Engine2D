@@ -2,8 +2,7 @@
 // Created by crims on 2020-04-19.
 //
 
-#ifndef RACINGFEVER_RESOURCEMANAGER_H
-#define RACINGFEVER_RESOURCEMANAGER_H
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -14,7 +13,7 @@
 
 namespace Engine2D {
 
-class ResourceManager
+class ResourceManager final
 {
     struct ConstructorTag {};
 
@@ -39,5 +38,3 @@ private:
 };
 
 }
-
-#endif //RACINGFEVER_RESOURCEMANAGER_H

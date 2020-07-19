@@ -2,8 +2,7 @@
 // Created by crims on 2020-05-11.
 //
 
-#ifndef RACINGFEVER_SHAPE_H
-#define RACINGFEVER_SHAPE_H
+#pragma once
 
 #include <GLES3/gl3.h>
 #include <glm/glm.hpp>
@@ -14,7 +13,7 @@ namespace Engine2D {
 class Shape {
 public:
     Shape() = default;
-    virtual ~Shape() {}
+    virtual ~Shape() = default;
 
     virtual void draw(const glm::mat4 &projection, const glm::mat4 &initialModel) = 0;
 
@@ -36,5 +35,3 @@ private:
 };
 
 }
-
-#endif //RACINGFEVER_SHAPE_H

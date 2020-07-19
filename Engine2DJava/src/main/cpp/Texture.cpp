@@ -75,9 +75,13 @@ void Texture::loadFromFile(const GLchar *file, GLboolean alpha)
     mWidth = width;
     mHeight = height;
     mLoaded = true;
-    Renderer::getInstance()->run([this, image]() {
-        prepare(image);
-        SOIL_free_image_data(image);
+    mImageBuffer = image;
+    Renderer::getInstance()->run([this]() {
+        if (!mPrepared) {
+            prepare(mImageBuffer);
+            SOIL_free_image_data(mImageBuffer);
+            mImageBuffer = nullptr;
+        }
     });
 }
 
@@ -97,9 +101,13 @@ void Texture::loadFromMemory(const unsigned char *memory, size_t memSize, GLbool
     mWidth = width;
     mHeight = height;
     mLoaded = true;
-    Renderer::getInstance()->run([this, image]() {
-        prepare(image);
-        SOIL_free_image_data(image);
+    mImageBuffer = image;
+    Renderer::getInstance()->run([this]() {
+        if (!mPrepared) {
+            prepare(mImageBuffer);
+            SOIL_free_image_data(mImageBuffer);
+            mImageBuffer = nullptr;
+        }
     });
 }
 
@@ -137,8 +145,14 @@ void Texture::prepare(unsigned char* data)
     }
 }
 
-void Texture::bind() const
+void Texture::bind()
 {
+    if (!mPrepared) {
+        prepare(mImageBuffer);
+        SOIL_free_image_data(mImageBuffer);
+        mImageBuffer = nullptr;
+    }
+
     if (mPrepared) {
         // Bind texture
         glBindTexture(GL_TEXTURE_2D, mID);

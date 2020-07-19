@@ -2,8 +2,7 @@
 // Created by crims on 2020-04-19.
 //
 
-#ifndef RACINGFEVER_SPRITEMANAGER_H
-#define RACINGFEVER_SPRITEMANAGER_H
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -16,7 +15,7 @@
 namespace Engine2D
 {
 
-class SpriteManager {
+class SpriteManager final {
     // Prevent construct from outside
     struct ConstructorTag {
     };
@@ -51,4 +50,3 @@ private:
 
 }
 
-#endif //RACINGFEVER_SPRITEMANAGER_H

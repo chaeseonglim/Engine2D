@@ -2,8 +2,7 @@
 // Created by crims on 2020-05-11.
 //
 
-#ifndef RACINGFEVER_CIRCLE_H
-#define RACINGFEVER_CIRCLE_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include "Shape.h"
@@ -73,5 +72,3 @@ private:
 };
 
 }
-
-#endif //RACINGFEVER_CIRCLE_H

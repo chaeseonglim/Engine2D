@@ -43,7 +43,7 @@ public abstract class HexTileMap {
      * @param mapCoord
      * @return
      */
-    protected abstract ArrayList<Sprite> getTileSprite(OffsetCoord mapCoord);
+    protected abstract ArrayList<Sprite> getTileSprites(OffsetCoord mapCoord);
 
     /**
      *
@@ -59,7 +59,7 @@ public abstract class HexTileMap {
      *
      * @param mapCoord
      */
-    public void removeTileSprite(OffsetCoord mapCoord) {
+    public void removeTileSprites(OffsetCoord mapCoord) {
 
         // Do nothing here - it's up to child class
     }
@@ -78,7 +78,7 @@ public abstract class HexTileMap {
             RectF spriteRegion = new RectF(new PointF(mapCoord.toGameCoord()), tileSize);
             spriteRegion.offset(-tileSize.width/2, -tileSize.height/2);
             if (!Rect.intersects(regionToCache, new Rect(spriteRegion))) {
-                removeTileSprite(mapCoord);
+                removeTileSprites(mapCoord);
                 iter.remove();
             }
         }
@@ -106,7 +106,7 @@ public abstract class HexTileMap {
                 OffsetCoord mapCoord = new OffsetCoord(x, y);
                 ArrayList<Sprite> sprites = spriteMap.get(mapCoord);
                 if (sprites == null || refreshMap.get(mapCoord) != null) {
-                    spriteMap.put(mapCoord, getTileSprite(mapCoord));
+                    spriteMap.put(mapCoord, getTileSprites(mapCoord));
                     refreshMap.remove(mapCoord);
                 }
             }

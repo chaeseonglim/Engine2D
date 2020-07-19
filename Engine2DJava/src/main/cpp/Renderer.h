@@ -2,9 +2,7 @@
 // Created by crims on 2020-04-18.
 //
 
-#ifndef RACINGFEVER_RENDERER_H
-#define RACINGFEVER_RENDERER_H
-
+#pragma once
 
 #include <EGL/egl.h>
 #include <jni.h>
@@ -16,7 +14,7 @@
 
 namespace Engine2D {
 
-class Renderer {
+class Renderer final {
     // Prevent construct from outside
     struct ConstructorTag {
     };
@@ -91,5 +89,3 @@ private:
 };
 
 }
-
-#endif //RACINGFEVER_RENDERER_H
