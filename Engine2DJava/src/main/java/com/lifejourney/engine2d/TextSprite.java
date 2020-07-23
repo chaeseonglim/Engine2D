@@ -188,6 +188,15 @@ public class TextSprite extends Sprite {
         load();
     }
 
+    /**
+     *
+     * @return
+     */
+    public void setFontColor(int fontColor) {
+
+        this.fontColor = fontColor;
+    }
+
     private String text;
     private String originalAsset;
     private float fontSize;

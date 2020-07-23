@@ -25,8 +25,19 @@ public class World {
      */
     protected void close() {
 
+        ArrayList<Object> objectsCopied  = new ArrayList<>();
+        objectsCopied.addAll(objects);
+        for (Object object: objectsCopied) {
+            object.close();
+        }
+
+        ArrayList<Widget> widgetsCopied  = new ArrayList<>();
+        widgetsCopied.addAll(widgets);
+        for (Widget widget: widgetsCopied) {
+            widget.close();
+        }
+
         view.close();
-        view = null;
     }
 
     /**

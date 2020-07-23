@@ -254,7 +254,7 @@ public class CollidableObject extends Object {
      *
      * @param neighbors
      */
-    public void separate(ArrayList neighbors, float minSeperation, float weight) {
+    public void separate(ArrayList neighbors, float range, float weight) {
 
         Vector2D totalForce = new Vector2D();
         int neighborCount = 0;
@@ -263,7 +263,7 @@ public class CollidableObject extends Object {
             CollidableObject neighbor = (CollidableObject) object;
             if (neighbor != this) {
                 float distance = neighbor.getPositionVector().distance(getPositionVector());
-                if (distance < minSeperation) {
+                if (distance < range) {
                     Vector2D force = getPositionVector().subtract(neighbor.getPositionVector());
                     totalForce.add(force);
                     neighborCount++;
