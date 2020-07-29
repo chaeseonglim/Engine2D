@@ -141,7 +141,7 @@ public class Engine2D {
      * @param pt
      * @return
      */
-    public PointF translateScreenToGameCoord(PointF pt) {
+    public PointF translateScreenToGamePosition(PointF pt) {
         return new PointF(pt.x / screenSize.width * viewport.width + viewport.x,
             pt.y / screenSize.height * viewport.height + viewport.y);
     }
@@ -151,7 +151,7 @@ public class Engine2D {
      * @param pt
      * @return
      */
-    public PointF translateScreenToWidgetCoord(PointF pt) {
+    public PointF translateScreenToWidgetPosition(PointF pt) {
         return new PointF(pt.x / screenSize.width * viewport.width,
                 pt.y / screenSize.height * viewport.height);
     }

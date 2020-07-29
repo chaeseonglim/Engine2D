@@ -87,6 +87,7 @@ public class Object implements Comparable<Object> {
             }
             sprites = null;
         }
+        closed = true;
     }
 
     /**
@@ -358,6 +359,14 @@ public class Object implements Comparable<Object> {
         this.depth = depth;
     }
 
+    /**
+     *
+     * @return
+     */
+    public boolean isClosed() {
+        return closed;
+    }
+
     private PointF position;
     private int layer;
     private float depth;
@@ -369,5 +378,6 @@ public class Object implements Comparable<Object> {
     private int updatePeriod;
     private int updatePeriodLeft;
 
+    private boolean closed = false;
     private boolean debugMode = false;
 }
