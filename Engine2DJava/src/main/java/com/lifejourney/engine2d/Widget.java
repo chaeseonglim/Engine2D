@@ -163,7 +163,9 @@ public class Widget implements Controllable {
             sprite.setVisible(visible);
         }
         for (Widget widget: widgets) {
-            widget.setVisible(visible);
+            if (widget.followParentVisibility) {
+                widget.setVisible(visible);
+            }
         }
     }
 
@@ -270,6 +272,24 @@ public class Widget implements Controllable {
         widgets.remove(widget);
     }
 
+    /**
+     *
+     * @param followParentVisibility
+     */
+    public void setFollowParentVisibility(boolean followParentVisibility) {
+
+        this.followParentVisibility = followParentVisibility;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean getFollowParentVisibility() {
+
+        return this.followParentVisibility;
+    }
+
     private Rect region;
     private RectF screenRegion;
     private int layer;
@@ -278,4 +298,5 @@ public class Widget implements Controllable {
     private ArrayList<Sprite> sprites = new ArrayList<>();
     private ArrayList<Sprite> spritesToRemove = new ArrayList<>();
     private ArrayList<Widget> widgets = new ArrayList<>();
+    private boolean followParentVisibility = true;
 }
