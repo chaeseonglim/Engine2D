@@ -404,7 +404,7 @@ public class CollidableObject extends Object {
         this.angularVelocity = angularVelocity;
     }
 
-    /**
+    /*
      *
      * @return
      */
@@ -438,6 +438,24 @@ public class CollidableObject extends Object {
     public void setMaxAngularVelocity(float maxAngularVelocity) {
 
         this.maxAngularVelocity = maxAngularVelocity;
+    }
+
+    /*
+     *
+     * @return
+     */
+    public float getMaxForce() {
+
+        return maxForce;
+    }
+
+    /**
+     *
+     * @param maxForce
+     */
+    public void setMaxForce(float maxForce) {
+
+        this.maxForce = maxForce;
     }
 
     /**
