@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+
 public class CubeCoord {
 
     private final String LOG_TAG = "CubeCoord";
@@ -282,6 +284,26 @@ public class CubeCoord {
         else {
             return Direction.UNKNOWN;
         }
+    }
+
+    /**
+     *
+     * @param radius
+     * @return
+     */
+    public ArrayList<CubeCoord> getNeighbors(int radius) {
+        ArrayList<CubeCoord> neighbors = new ArrayList<>();
+
+        for (int x = -radius; x <= radius; ++x) {
+            for (int y = Math.max(-radius, -x-radius); y <= Math.min(radius, -x+radius); ++y) {
+                int z = -x-y;
+                if (x != 0 || y != 0 || z != 0) {
+                    neighbors.add(new CubeCoord(this.x + x, this.y + y, this.z + z));
+                }
+            }
+        }
+
+        return neighbors;
     }
 
     private static final float SQRT3 = (float)Math.sqrt(3);

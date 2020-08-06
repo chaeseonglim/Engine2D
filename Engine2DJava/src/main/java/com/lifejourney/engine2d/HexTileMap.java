@@ -50,7 +50,7 @@ public abstract class HexTileMap {
      * @param mapCoord
      * @return
      */
-    public void redrawTileSprite(OffsetCoord mapCoord) {
+    public void redraw(OffsetCoord mapCoord) {
 
         refreshMap.put(mapCoord, true);
     }

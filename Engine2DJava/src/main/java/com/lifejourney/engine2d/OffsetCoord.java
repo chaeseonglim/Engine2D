@@ -190,7 +190,7 @@ public class OffsetCoord {
      *
      * @return
      */
-    public ArrayList<OffsetCoord> getNeighbors() {
+    public ArrayList<OffsetCoord> getNeighborsByCcw() {
 
         ArrayList<OffsetCoord> neighbors = new ArrayList<>();
         // Note: Its order is from top left to clock-wise direction
@@ -210,6 +210,23 @@ public class OffsetCoord {
             neighbors.add(new OffsetCoord(x, y + 1));
             neighbors.add(new OffsetCoord(x - 1, y));
         }
+        return neighbors;
+    }
+
+    /**
+     *
+     * @param radius
+     * @return
+     */
+    public ArrayList<OffsetCoord> getNeighbors(int radius) {
+
+        ArrayList<CubeCoord> neighborCubes = toCubeCoord().getNeighbors(radius);
+
+        ArrayList<OffsetCoord> neighbors = new ArrayList<>();
+        for (CubeCoord cube: neighborCubes) {
+            neighbors.add(cube.toOffsetCoord());
+        }
+
         return neighbors;
     }
 
