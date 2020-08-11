@@ -310,6 +310,18 @@ public class World {
         return desiredFPS;
     }
 
+    /**
+     *
+     */
+    public void pause() {
+    }
+
+    /**
+     *
+     */
+    public void resume() {
+    }
+
     private float desiredFPS = 30.0f;
     private long accumulatedTime;
     private long lastUpdateStartTime = System.currentTimeMillis();

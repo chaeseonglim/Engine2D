@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.media.SoundPool;
 import android.os.Build;
 import android.util.Log;
 
@@ -11,6 +12,8 @@ import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ResourceManager {
 
@@ -114,7 +117,57 @@ public class ResourceManager {
         return infoBitmap;
     }
 
+    /**
+     *
+     * @param asset
+     */
+    public void addMusic(int asset) {
+        musicList.add(asset);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Integer> getMusicList() {
+        return musicList;
+    }
+
+    /**
+     *
+     * @param asset
+     */
+    public void loadSoundEffect(String name, int asset) {
+        SoundPool soundPool = Engine2D.GetInstance().getSoundPool();
+        soundEffectMap.put(name, soundPool.load(context, asset, 1));
+    }
+
+    /**
+     *
+     */
+    public void unloadSoundEffects() {
+        SoundPool soundPool = Engine2D.GetInstance().getSoundPool();
+        soundPool.release();
+        soundEffectMap.clear();
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     */
+    public int getSoundEffect(String name) {
+        Integer id = soundEffectMap.get(name);
+        if (id == null) {
+            Log.e(LOG_TAG, "Failed to find sound effect " + name + "!!!");
+            return -1;
+        }
+        return id;
+    }
+
     private Context context;
+    private HashMap<String, Integer> soundEffectMap = new HashMap<>(5);
+    private ArrayList<Integer> musicList = new ArrayList<>();
 
     private native boolean nLoadTexture(String name, byte[] image, boolean smooth);
     private native boolean nAttachTexture(String name);

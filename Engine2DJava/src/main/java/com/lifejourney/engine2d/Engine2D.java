@@ -1,9 +1,13 @@
 package com.lifejourney.engine2d;
 
 import android.app.Activity;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.util.Log;
 import android.view.Surface;
 
-public class Engine2D {
+public class Engine2D implements MediaPlayer.OnCompletionListener {
 
     // Used to load the 'RacingFever' library on application startup.
     static {
@@ -30,8 +34,20 @@ public class Engine2D {
      */
     public void initEngine(Activity activity) {
         if (!initialized) {
+            this.activity = activity;
+
             // Initialize Engine
             nEngineInit(activity);
+
+            // Initialize sound
+            AudioAttributes attrs = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(20)
+                    .setAudioAttributes(attrs)
+                    .build();
 
             // Initialize resource manager
             resourceManager = new ResourceManager(activity.getApplicationContext());
@@ -51,6 +67,9 @@ public class Engine2D {
 
             // Finalize resource manager
             resourceManager.releaseAll();
+
+            // Finalize sound
+            soundPool.release();
 
             // Finalize Engine
             nEngineFinalize();
@@ -180,11 +199,159 @@ public class Engine2D {
         return initialized;
     }
 
+    /**
+     *
+     * @return
+     */
+    public Activity getActivity() {
+        return activity;
+    }
+
+    /**
+     *
+     */
+    public void playMusic(float volume) {
+        if (musicPlayer != null) {
+            if (resourceManager.getMusicList().size() == 1) {
+                musicPlayer.setLooping(true);
+                if (!musicPlayer.isPlaying()) {
+                    musicPlayer.start();
+                }
+                return;
+            } else {
+                musicPlayer.release();
+            }
+        }
+
+        if (resourceManager.getMusicList().size() == 0) {
+            Log.e(LOG_TAG, "There's no music added in resource manager!!");
+            return;
+        }
+
+        musicVolume = volume;
+
+        musicPlayer = MediaPlayer.create(activity, resourceManager.getMusicList().get(currentMusicIndex));
+        musicPlayer.setLooping(false);
+        musicPlayer.setVolume(volume, volume);
+        musicPlayer.setOnCompletionListener(this);
+        musicPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                musicPlayer.start();
+            }
+        });
+    }
+
+    /**
+     *
+     */
+    public void stopMusic() {
+        if (musicPlayer != null) {
+            musicPlayer.stop();
+            musicPlayer.release();
+            musicPlayer = null;
+        }
+    }
+
+    /**
+     *
+     * @param mp
+     */
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        if (musicPlayer != null) {
+            Log.i(LOG_TAG, "Music is finished!!!");
+            musicPlayer.release();
+        }
+
+        Log.i(LOG_TAG, "Let me play next music");
+
+        currentMusicIndex = (currentMusicIndex + 1) % resourceManager.getMusicList().size();
+        musicPlayer = MediaPlayer.create(activity, resourceManager.getMusicList().get(currentMusicIndex));
+        musicPlayer.setLooping(false);
+        musicPlayer.setOnCompletionListener(this);
+        musicPlayer.setVolume(musicVolume, musicVolume);
+        musicPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                if (musicEnabled) {
+                    musicPlayer.start();
+                }
+            }
+        });
+    }
+
+    /**
+     *
+     * @return
+     */
+    public SoundPool getSoundPool() {
+        return soundPool;
+    }
+
+    /**
+     *
+     * @param name
+     */
+    public void playSoundEffect(String name, float volume) {
+        if (soundEffectEnabled) {
+            soundPool.play(resourceManager.getSoundEffect(name), volume, volume,
+                    1, 0, 1.0f);
+        }
+    }
+
+    /**
+     *
+     * @param musicEnabled
+     */
+    public void enableMusic(boolean musicEnabled) {
+        boolean prevMusicEnabled = this.musicEnabled;
+        this.musicEnabled = musicEnabled;
+        if (prevMusicEnabled != this.musicEnabled) {
+            if (musicEnabled) {
+                playMusic(musicVolume);
+            } else {
+                stopMusic();
+            }
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isMusicEnabled() {
+        return musicEnabled;
+    }
+
+    /**
+     *
+     * @param soundEffectEnabled
+     */
+    public void enableSoundEffect(boolean soundEffectEnabled) {
+        this.soundEffectEnabled = soundEffectEnabled;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isSoundEffectEnabled() {
+        return soundEffectEnabled;
+    }
+
+    private Activity activity;
     private Size screenSize;
     private Rect viewport;
     private ResourceManager resourceManager;
     private CollisionDetector collisionDetector;
     private boolean initialized = false;
+    private MediaPlayer musicPlayer = null;
+    private int currentMusicIndex = 0;
+    private float musicVolume = 0.5f;
+    private SoundPool soundPool = null;
+    private boolean musicEnabled = true;
+    private boolean soundEffectEnabled = true;
 
     private native void nEngineInit(Activity activity);
     private native void nEngineFinalize();
