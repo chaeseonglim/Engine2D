@@ -259,7 +259,9 @@ public class Widget implements Controllable {
      */
     public void addWidget(Widget widget) {
 
-        widget.setVisible(visible);
+        if (widget.followParentVisibility) {
+            widget.setVisible(visible);
+        }
         widgets.add(widget);
     }
 

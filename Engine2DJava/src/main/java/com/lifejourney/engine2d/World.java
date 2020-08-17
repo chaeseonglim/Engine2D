@@ -16,35 +16,37 @@ public class World {
      * @param worldSize
      */
     protected void initCollisionPool(Size worldSize, boolean response) {
-
         collidablePool = new CollidablePool(worldSize, response);
     }
 
     /**
      *
      */
-    protected void close() {
+    public void close() {
+        controllables.clear();
 
         ArrayList<Object> objectsCopied  = new ArrayList<>();
         objectsCopied.addAll(objects);
         for (Object object: objectsCopied) {
             object.close();
         }
+        objects.clear();
 
         ArrayList<Widget> widgetsCopied  = new ArrayList<>();
         widgetsCopied.addAll(widgets);
         for (Widget widget: widgetsCopied) {
             widget.close();
         }
+        widgets.clear();
 
         view.close();
+        view = null;
     }
 
     /**
      *
      */
     public static Comparator<Controllable> controllableComparator = new Comparator<Controllable>() {
-
         public int compare(Controllable cont1, Controllable cont2){
             int result = Integer.compare(cont2.getLayer(), cont1.getLayer());
             if (result == 0) {
@@ -62,8 +64,7 @@ public class World {
      * @return
      */
     public boolean onTouchEvent(MotionEvent event) {
-
-        // controllables
+        // Controllables
         PriorityQueue<Controllable> controllableSorted =
                 new PriorityQueue<>(controllables.size(), controllableComparator);
         for (Controllable controllable : controllables) {
@@ -90,7 +91,6 @@ public class World {
      *
      */
     public void update() {
-
         // Check the time elapsed since last update
         long currentTime = System.currentTimeMillis();
         accumulatedTime += currentTime - lastUpdateStartTime;
@@ -102,11 +102,13 @@ public class World {
 
         long dt = (long) (1000.0f / desiredFPS);
         while (accumulatedTime > dt) {
-            preUpdate();
+            if (!paused) {
+                preUpdate();
+                updateObjects();
+                postUpdate();
+            }
             updateViews();
-            updateObjects();
             updateWidgets();
-            postUpdate();
             accumulatedTime -= dt;
         }
     }
@@ -115,27 +117,29 @@ public class World {
      *
      */
     protected void preUpdate() {
+
     }
 
     /**
      *
      */
     protected void postUpdate() {
+
     }
 
     /**
      *
      */
     private void updateViews() {
-
-        view.update();
+        if (view != null) {
+            view.update();
+        }
     }
 
     /**
      *
      */
     protected void updateObjects() {
-
         PriorityQueue<Object> sortedObjects = new PriorityQueue<>();
         for (Object object : objects) {
             sortedObjects.offer(object);
@@ -154,7 +158,6 @@ public class World {
      *
      */
     private void updateWidgets() {
-
         for (Widget widget: widgets) {
             widget.update();
         }
@@ -164,7 +167,6 @@ public class World {
      *
      */
     public void commit() {
-
         Engine2D.GetInstance().lockDraw();
         commitView();
         commitObjects();
@@ -177,7 +179,6 @@ public class World {
      *
      */
     private void commitView() {
-
         if (view != null) {
             view.commit();
         }
@@ -187,7 +188,6 @@ public class World {
      *
      */
     private void commitObjects() {
-
         for (Object object : objects) {
             object.commit();
         }
@@ -197,7 +197,6 @@ public class World {
      *
      */
     private void commitWidgets() {
-
         for (Widget widget: widgets) {
             widget.commit();
         }
@@ -207,7 +206,6 @@ public class World {
      *
      */
     private void commitViewport() {
-
         Engine2D.GetInstance().commitViewport();
     }
 
@@ -216,7 +214,6 @@ public class World {
      * @param object
      */
     public void addObject(Object object) {
-
         if (object instanceof CollidableObject) {
             if (collidablePool != null ) {
                 collidablePool.add((CollidableObject) object);
@@ -233,7 +230,6 @@ public class World {
      * @param object
      */
     public void removeObject(Object object) {
-
         if (object instanceof CollidableObject) {
             if (collidablePool != null ) {
                 collidablePool.remove((CollidableObject) object);
@@ -250,7 +246,6 @@ public class World {
      * @param widget
      */
     public void addWidget(Widget widget) {
-
         widgets.add(widget);
         controllables.add(widget);
     }
@@ -260,7 +255,6 @@ public class World {
      * @param widget
      */
     public void removeWidget(Widget widget) {
-
         widgets.remove(widget);
         controllables.remove(widget);
     }
@@ -269,18 +263,8 @@ public class World {
      *
      * @param view
      */
-    protected void addView(View view) {
-
+    protected void setView(View view) {
         this.view = view;
-    }
-
-    /**
-     *
-     * @param view
-     */
-    protected void removeView(View view) {
-
-        this.view = null;
     }
 
     /**
@@ -288,7 +272,6 @@ public class World {
      * @return
      */
     protected View getView() {
-
         return view;
     }
 
@@ -297,7 +280,6 @@ public class World {
      * @param desiredFPS
      */
     public void setDesiredFPS(float desiredFPS) {
-
         this.desiredFPS = desiredFPS;
     }
 
@@ -306,7 +288,6 @@ public class World {
      * @return
      */
     public float getDesiredFPS() {
-
         return desiredFPS;
     }
 
@@ -314,12 +295,36 @@ public class World {
      *
      */
     public void pause() {
+        paused = true;
     }
 
     /**
      *
      */
     public void resume() {
+        paused = false;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isPaused() {
+        return paused;
+    }
+
+    /**
+     *
+     */
+    public void onPause() {
+        pause();
+    }
+
+    /**
+     *
+     */
+    public void onResume() {
+        resume();
     }
 
     private float desiredFPS = 30.0f;
@@ -331,4 +336,5 @@ public class World {
     private ArrayList<Controllable> controllables = new ArrayList<>();
     private CollidablePool collidablePool;
     private ArrayList<Widget> widgets = new ArrayList<>();
+    private boolean paused = false;
 }

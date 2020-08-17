@@ -1,6 +1,8 @@
 package com.lifejourney.engine2d;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -211,6 +213,10 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
      *
      */
     public void playMusic(float volume) {
+        if (!isMusicEnabled()) {
+            return;
+        }
+
         if (musicPlayer != null) {
             if (resourceManager.getMusicList().size() == 1) {
                 musicPlayer.setLooping(true);
@@ -338,6 +344,62 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
      */
     public boolean isSoundEffectEnabled() {
         return soundEffectEnabled;
+    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     */
+    public void savePreference(String key, String value) {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(key, value);
+        editor.apply();
+
+    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     */
+    public void savePreference(String key, int value) {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(key, value);
+        editor.apply();
+    }
+
+    /**
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public String loadPreference(String key, String defaultValue) {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getString(key, defaultValue);
+    }
+
+    /**
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public int loadPreference(String key, int defaultValue) {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getInt(key, defaultValue);
+    }
+
+    /**
+     *
+     * @param resource
+     * @return
+     */
+    public String getString(int resource) {
+        return activity.getString(resource);
     }
 
     private Activity activity;

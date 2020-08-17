@@ -77,6 +77,23 @@ public class TextSprite extends Sprite {
     }
 
     @Override
+    public void close() {
+        super.close();
+
+        // Delete all lazy deleted sprites
+        ListIterator<Pair<Integer, Integer>> iit = spriteIDsToLazyDelete.listIterator();
+        while (iit.hasNext()) {
+            Pair<Integer, Integer> item = iit.next();
+            if (item.second == 1) {
+                nDestroySprite(item.first);
+                iit.remove();
+            } else {
+                iit.set(new Pair<>(item.first, item.second - 1));
+            }
+        }
+    }
+
+    @Override
     public void commit() {
 
         Iterator<Pair<Integer, Integer>> it = spriteIDsToLazyDelete.iterator();
