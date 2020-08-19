@@ -279,7 +279,7 @@ public class World {
      *
      * @param desiredFPS
      */
-    public void setDesiredFPS(float desiredFPS) {
+    public void setUpdateFPS(float desiredFPS) {
         this.desiredFPS = desiredFPS;
     }
 

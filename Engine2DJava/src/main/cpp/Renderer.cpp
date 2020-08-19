@@ -263,7 +263,7 @@ void Renderer::draw(ThreadState *threadState) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Just fill the screen with a color.
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     {

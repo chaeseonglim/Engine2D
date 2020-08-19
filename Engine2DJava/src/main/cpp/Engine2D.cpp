@@ -366,3 +366,10 @@ Java_com_lifejourney_engine2d_Circle_nSetProperties(JNIEnv *env, jobject thiz, j
     circle->setDepth(depth);
     circle->setVisible(visible);
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_lifejourney_engine2d_Engine2D_nEngineSetBackgroundColor(JNIEnv *env, jobject thiz, jint r,
+                                                                 jint g, jint b) {
+    Renderer::getInstance()->setBackgroundColor(glm::vec3(r/255.0f, g/255.0f, b/255.0f));
+}

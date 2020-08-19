@@ -3,6 +3,7 @@ package com.lifejourney.engine2d;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -402,6 +403,14 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
         return activity.getString(resource);
     }
 
+    /**
+     *
+     * @param rgb
+     */
+    public void setBackgroundColor(int rgb) {
+        nEngineSetBackgroundColor((int)Color.red(rgb), (int)Color.green(rgb), (int)Color.blue(rgb));
+    }
+
     private Activity activity;
     private Size screenSize;
     private Rect viewport;
@@ -425,6 +434,7 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
     private native float nEngineGetAverageFps();
     private native int nEngineGetSwappyStats(int stat, int bin);
     private native void nEngineSetViewport(int x, int y, int width, int height);
+    private native void nEngineSetBackgroundColor(int r, int g, int b);
     private native void nEngineLockDraw();
     private native void nEngineUnlockDraw();
 }

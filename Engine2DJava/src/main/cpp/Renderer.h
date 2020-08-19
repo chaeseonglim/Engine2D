@@ -6,6 +6,7 @@
 
 #include <EGL/egl.h>
 #include <jni.h>
+#include <glm/glm.hpp>
 
 #include "Thread.h"
 #include "WorkerThread.h"
@@ -54,6 +55,10 @@ public:
         mDrawLock.unlock();
     }
 
+    void setBackgroundColor(glm::vec3 backgroundColor) {
+        mBackgroundColor = backgroundColor;
+    }
+
 private:
     class ThreadState {
     public:
@@ -83,6 +88,7 @@ private:
     WorkerThread<ThreadState> mWorkerThread = {"Renderer", Affinity::None};
     std::mutex mDrawLock;
     Rect mViewport;
+    glm::vec3 mBackgroundColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
     float mAverageFps = -1.0f;
     bool mInitialized = false;

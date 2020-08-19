@@ -197,7 +197,6 @@ public abstract class HexTileMap {
      * @return
      */
     public int[][] getMapData() {
-
         return mapData;
     }
 
@@ -206,7 +205,6 @@ public abstract class HexTileMap {
      * @return
      */
     public int getMapData(OffsetCoord mapCoord) {
-
         return mapData[mapCoord.getY()][mapCoord.getX()];
     }
 
@@ -215,7 +213,6 @@ public abstract class HexTileMap {
      * @param mapData
      */
     public void setMapData(int[][] mapData) {
-
         this.mapData = mapData;
     }
 
@@ -224,7 +221,6 @@ public abstract class HexTileMap {
      * @param hexSize
      */
     public void setHexSize(int hexSize) {
-
         OffsetCoord.SetHexSize(hexSize);
         CubeCoord.SetHexSize(hexSize);
         tileSize = new SizeF(SQRT3 * hexSize, 2 * hexSize);

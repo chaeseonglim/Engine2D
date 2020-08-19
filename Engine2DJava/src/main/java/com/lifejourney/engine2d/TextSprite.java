@@ -178,7 +178,6 @@ public class TextSprite extends Sprite {
      * @return
      */
     public boolean load() {
-
         if (!asset.equals(originalAsset)) {
             ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
             resourceManager.releaseTexture(asset);
@@ -200,7 +199,6 @@ public class TextSprite extends Sprite {
      * @return
      */
     public void setText(String text) {
-
         this.text = text;
         load();
     }
@@ -210,7 +208,6 @@ public class TextSprite extends Sprite {
      * @return
      */
     public void setFontColor(int fontColor) {
-
         this.fontColor = fontColor;
     }
 
