@@ -266,8 +266,14 @@ void Line::draw(const glm::mat4 &projection, const glm::mat4 &initialModel)
     glUniform4fv(state.colorHandle, 1, glm::value_ptr(mColor));
     checkGlError("glUniform4fv");
 
+    glLineWidth(mLineWidth);
+    checkGlError("glLineWidth");
+
     glDrawArrays(GL_LINES, 0, 2);
     checkGlError("glDrawArrays");
+
+    glLineWidth(1.0f);
+    checkGlError("glLineWidth");
 
     glBindVertexArray(0);
     checkGlError("glBindVertexArray");

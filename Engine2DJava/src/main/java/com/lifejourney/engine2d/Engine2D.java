@@ -163,7 +163,7 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
      * @param pt
      * @return
      */
-    public PointF translateScreenToGamePosition(PointF pt) {
+    public PointF fromScreenToGame(PointF pt) {
         return new PointF(pt.x / screenSize.width * viewport.width + viewport.x,
             pt.y / screenSize.height * viewport.height + viewport.y);
     }
@@ -173,9 +173,38 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
      * @param pt
      * @return
      */
-    public PointF translateScreenToWidgetPosition(PointF pt) {
+    public PointF fromWidgetToGame(PointF pt) {
+        return new PointF(pt.x + viewport.x, pt.y + viewport.y);
+    }
+
+    /**
+     *
+     * @param pt
+     * @return
+     */
+    public PointF fromScreenToWidget(PointF pt) {
         return new PointF(pt.x / screenSize.width * viewport.width,
                 pt.y / screenSize.height * viewport.height);
+    }
+
+    /**
+     *
+     * @param pt
+     * @return
+     */
+    public PointF fromWidgetToScreen(PointF pt) {
+        return new PointF(pt.x * screenSize.width / viewport.width,
+                pt.y * screenSize.height / viewport.height);
+    }
+
+    /**
+     *
+     * @param sz
+     * @return
+     */
+    public SizeF fromWidgetToScreen(SizeF sz) {
+        return new SizeF(sz.width * screenSize.width / viewport.width,
+                sz.height * screenSize.height / viewport.height);
     }
 
     /**

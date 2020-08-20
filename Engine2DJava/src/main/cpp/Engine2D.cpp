@@ -295,16 +295,20 @@ Java_com_lifejourney_engine2d_Sprite_nSetProperties(JNIEnv *env, jobject thiz, j
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_lifejourney_engine2d_Line_nCreateLine(JNIEnv *env, jobject thiz, jfloat begin_x, jfloat begin_y, jfloat end_x,
-                 jfloat end_y, jfloat r, jfloat g, jfloat b, jfloat a, jint layer) {
+                 jfloat end_y, jfloat r, jfloat g, jfloat b, jfloat a, jint layer, jfloat depth,
+                 jfloat width, jboolean visible) {
     auto line = std::make_shared<Line>(
             glm::vec2(begin_x, begin_y), glm::vec2(end_x, end_y), glm::vec4(r, g, b, a));
     line->setLayer(layer);
+    line->setDepth(depth);
+    line->setVisible(visible);
+    line->setLineWidth(width);
     return ShapeManager::getInstance()->add(line);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_lifejourney_engine2d_Line_nDestoryLine(JNIEnv *env, jobject thiz, jint id) {
+Java_com_lifejourney_engine2d_Line_nDestroyLine(JNIEnv *env, jobject thiz, jint id) {
     ShapeManager::getInstance()->remove(id);
 }
 
@@ -313,7 +317,7 @@ JNIEXPORT void JNICALL
 Java_com_lifejourney_engine2d_Line_nSetProperties(JNIEnv *env, jobject thiz, jint id,
                     jfloat begin_x, jfloat begin_y, jfloat end_x, jfloat end_y,
                     jfloat r, jfloat g, jfloat b, jfloat a, jint layer,
-                    jfloat depth, jboolean visible) {
+                    jfloat depth, jfloat width, jboolean visible) {
     std::shared_ptr<Line> line =
             std::dynamic_pointer_cast<Line>(ShapeManager::getInstance()->get(id));
     if (line == nullptr) {
@@ -327,6 +331,7 @@ Java_com_lifejourney_engine2d_Line_nSetProperties(JNIEnv *env, jobject thiz, jin
     line->setLayer(layer);
     line->setDepth(depth);
     line->setVisible(visible);
+    line->setLineWidth(width);
 }
 
 extern "C"
@@ -342,7 +347,7 @@ Java_com_lifejourney_engine2d_Circle_nCreateCircle(JNIEnv *env, jobject thiz, jf
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_lifejourney_engine2d_Circle_nDestoryCircle(JNIEnv *env, jobject thiz, jint id) {
+Java_com_lifejourney_engine2d_Circle_nDestroyCircle(JNIEnv *env, jobject thiz, jint id) {
     ShapeManager::getInstance()->remove(id);
 }
 

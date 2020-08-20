@@ -1,16 +1,16 @@
 package com.lifejourney.engine2d;
 
 import android.graphics.Color;
-import android.util.Log;
 
-public class Line {
+import java.util.ArrayList;
 
-    private static String LOG_TAG = "Line";
+public class Rectangle {
+
+    private static String LOG_TAG = "Rectangle";
 
     public static class Builder {
         // required parameter
-        private PointF begin;
-        private PointF end;
+        private RectF region;
 
         // optional
         private int layer = 0;
@@ -19,9 +19,8 @@ public class Line {
         private boolean visible = false;
         private float lineWidth = 1.0f;
 
-        public Builder(PointF begin, PointF end) {
-            this.begin = begin;
-            this.end = end;
+        public Builder(RectF region) {
+            this.region = region;
         }
         public Builder color(int color) {
             this.color = color;
@@ -43,56 +42,35 @@ public class Line {
             this.lineWidth = lineWidth;
             return this;
         }
-        public Line build() {
-            return new Line(this);
+        public Rectangle build() {
+            return new Rectangle(this);
         }
     };
 
-    private Line(Builder builder) {
-        begin       = builder.begin;
-        end         = builder.end;
+    private Rectangle(Rectangle.Builder builder) {
+        region      = builder.region;
         color       = builder.color;
         layer       = builder.layer;
         depth       = builder.depth;
         visible     = builder.visible;
-        lineWidth = builder.lineWidth;
+        lineWidth   = builder.lineWidth;
 
-        load();
-    }
-
-    /**
-     *
-     * @return
-     */
-    public boolean load() {
-        id = nCreateLine(begin.x, begin.y, end.x, end.y,Color.red(color)/255.0f,
-                Color.green(color)/255.0f, Color.blue(color)/255.0f,
-                Color.alpha(color)/255.0f, layer, depth, lineWidth, visible);
-        if (id == INVALID_ID) {
-            Log.e(LOG_TAG, "Failed to create line");
-            return false;
-        }
-
-        return true;
+        lines.add(new Line.Builder(region.topLeft(), region.bottomLeft()).color(color)
+            .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
+        lines.add(new Line.Builder(region.topLeft(), region.topRight()).color(color)
+                .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
+        lines.add(new Line.Builder(region.topRight(), region.bottomRight()).color(color)
+                .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
+        lines.add(new Line.Builder(region.bottomLeft(), region.bottomRight()).color(color)
+                .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
     }
 
     /**
      *
      */
     public void close() {
-        if (id != INVALID_ID) {
-            nDestroyLine(id);
-            id = INVALID_ID;
-        }
-    }
-
-    /**
-     *
-     */
-    public void finalize() {
-        if (id != INVALID_ID) {
-            Log.w(LOG_TAG, "A line " + id + " is not properly closed");
-            nDestroyLine(id);
+        for (Line line: lines) {
+            line.close();
         }
     }
 
@@ -100,9 +78,9 @@ public class Line {
      *
      */
     public void commit() {
-        nSetProperties(id, begin.x, begin.y, end.x, end.y,
-                Color.red(color), Color.green(color), Color.blue(color), Color.alpha(color),
-                layer, depth, lineWidth, visible);
+        for (Line line: lines) {
+            line.commit();
+        }
     }
 
     /**
@@ -119,6 +97,9 @@ public class Line {
      */
     public void setLayer(int layer) {
         this.layer = layer;
+        for (Line line: lines) {
+            line.setLayer(layer);
+        }
     }
 
     /**
@@ -135,6 +116,9 @@ public class Line {
      */
     public void setDepth(float depth) {
         this.depth = depth;
+        for (Line line: lines) {
+            line.setDepth(depth);
+        }
     }
 
     /**
@@ -142,6 +126,9 @@ public class Line {
      */
     public void show() {
         this.visible = true;
+        for (Line line: lines) {
+            line.show();
+        }
     }
 
     /**
@@ -149,6 +136,9 @@ public class Line {
      */
     public void hide() {
         this.visible = false;
+        for (Line line: lines) {
+            line.hide();
+        }
     }
 
     /**
@@ -165,26 +155,21 @@ public class Line {
      */
     public void setVisible(boolean visible) {
         this.visible = visible;
+        for (Line line: lines) {
+            line.setVisible(visible);
+        }
     }
 
     /**
      *
-     * @param begin
-     * @param vector
+     * @param region
      */
-    public void setPoints(PointF begin, Vector2D vector) {
-        this.begin = begin;
-        this.end = new PointF(begin.vectorize().add(vector));
-    }
-
-    /**
-     *
-     * @param begin
-     * @param end
-     */
-    public void setPoints(PointF begin, PointF end) {
-        this.begin = begin;
-        this.end = end;
+    public void setRegion(RectF region) {
+        this.region = region;
+        lines.get(0).setPoints(region.topLeft(), region.bottomLeft());
+        lines.get(1).setPoints(region.topLeft(), region.topRight());
+        lines.get(2).setPoints(region.topRight(), region.bottomRight());
+        lines.get(3).setPoints(region.bottomLeft(), region.bottomRight());
     }
 
     /**
@@ -193,6 +178,9 @@ public class Line {
      */
     public void setColor(int color) {
         this.color = color;
+        for (Line line: lines) {
+            line.setColor(color);
+        }
     }
 
     /**
@@ -201,24 +189,16 @@ public class Line {
      */
     public void setLineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
+        for (Line line: lines) {
+            line.setLineWidth(lineWidth);
+        }
     }
 
-    private final int INVALID_ID = -1;
-
-    private int id;
+    private RectF region;
+    private ArrayList<Line> lines = new ArrayList<>();
     private int layer;
-    private PointF begin;
-    private PointF end;
     private int color;
     private float depth;
     private float lineWidth;
     private boolean visible;
-
-    private native int nCreateLine(float beginX, float beginY, float endX, float endY,
-                                   float r, float g, float b, float a, int layer,
-                                   float depth, float width, boolean visible);
-    private native void nDestroyLine(int id);
-    private native void nSetProperties(int id, float beginX, float beginY, float endX, float endY,
-                                       float r, float g, float b, float a, int layer,
-                                       float depth, float width, boolean visible);
 }

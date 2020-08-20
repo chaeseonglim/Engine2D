@@ -57,6 +57,14 @@ public:
         Line::mColor = mColor;
     }
 
+    const GLfloat getLineWidth() const {
+        return mLineWidth;
+    }
+
+    void setLineWidth(GLfloat lineWidth) {
+        mLineWidth = lineWidth;
+    }
+
 private:
     void prepare();
     void prepareInternal();
@@ -68,6 +76,7 @@ private:
     glm::vec4 mColor;
     GLuint mVertexArray;
     GLuint mVertexBuffer;
+    GLfloat mLineWidth = 1.0f;
     bool mPrepared = false;
 };
 

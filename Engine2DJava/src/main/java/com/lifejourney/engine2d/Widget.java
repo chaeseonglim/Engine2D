@@ -70,7 +70,7 @@ public class Widget implements Controllable {
      */
     protected boolean checkIfInputEventInRegion(MotionEvent event) {
 
-        PointF touchedPos = Engine2D.GetInstance().translateScreenToWidgetPosition(
+        PointF touchedPos = Engine2D.GetInstance().fromScreenToWidget(
                 new PointF(event.getX(), event.getY()));
 
         return region.includes(touchedPos);

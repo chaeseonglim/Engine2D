@@ -1,5 +1,7 @@
 package com.lifejourney.engine2d;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 
 public class CollidableObject extends Object {
@@ -109,10 +111,10 @@ public class CollidableObject extends Object {
         if (isDebugMode()) {
             lineVelocity = new Line.Builder(getPosition(),
                     new PointF(getPositionVector().add(getVelocity())))
-                    .color(1.0f, 1.0f, 1.0f, 1.0f).visible(true).build();
+                    .color(Color.argb(255, 255, 255, 255)).visible(true).build();
             circleShape =
                     new Circle.Builder(shape.getPosition(), shape.getRadius())
-                            .color(1.0f, 1.0f, 1.0f, 1.0f).visible(true).build();
+                    .color(Color.argb(255, 255, 255, 255)).visible(true).build();
         }
     }
 
