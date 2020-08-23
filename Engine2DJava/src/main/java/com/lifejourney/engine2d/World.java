@@ -316,14 +316,14 @@ public class World {
     /**
      *
      */
-    public void onPause() {
+    public void pauseForBackground() {
         pause();
     }
 
     /**
      *
      */
-    public void onResume() {
+    public void resumeFromBackground() {
         resume();
     }
 

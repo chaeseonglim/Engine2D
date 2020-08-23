@@ -3,10 +3,10 @@ package com.lifejourney.engine2d;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Typeface;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 
 import androidx.core.util.Pair;
 
@@ -28,8 +28,9 @@ public class TextSprite extends Sprite {
         // optional
         private int fontColor = Color.argb(255, 255, 255, 255);
         private int bgColor = Color.argb(0, 0, 0, 0);
-        private Paint.Align textAlign = Paint.Align.LEFT;
         private String fontName;
+        private Layout.Alignment horizontalAlign = Layout.Alignment.ALIGN_NORMAL;
+        private Layout.Alignment verticalAlign = Layout.Alignment.ALIGN_NORMAL;
 
         public Builder(String name, String text, float fontSize) {
             super(name);
@@ -44,12 +45,16 @@ public class TextSprite extends Sprite {
             this.bgColor = bgColor;
             return this;
         }
-        public Builder textAlign(Paint.Align textAlign) {
-            this.textAlign = textAlign;
-            return this;
-        }
         public Builder fontName(String fontName) {
             this.fontName = fontName;
+            return this;
+        }
+        public Builder horizontalAlign(Layout.Alignment horizontalAlign) {
+            this.horizontalAlign = horizontalAlign;
+            return this;
+        }
+        public Builder verticalAlign(Layout.Alignment verticalAlign) {
+            this.verticalAlign = verticalAlign;
             return this;
         }
         public TextSprite build() {
@@ -64,7 +69,8 @@ public class TextSprite extends Sprite {
         fontSize        = builder.fontSize;
         fontColor       = builder.fontColor;
         bgColor         = builder.bgColor;
-        textAlign       = builder.textAlign;
+        horizontalAlign = builder.horizontalAlign;
+        verticalAlign   = builder.verticalAlign;
         if (builder.fontName != null) {
             ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
             typeface = resourceManager.loadTypeface(builder.fontName);
@@ -119,8 +125,18 @@ public class TextSprite extends Sprite {
         }
     }
 
-    private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize,
-                                       int fontColor, Paint.Align align) {
+    /**
+     *
+     * @param text
+     * @param typeface
+     * @param fontSize
+     * @param fontColor
+     * @param align
+     * @return
+     */
+    /*
+    private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize, int fontColor,
+                                       Paint.Align align) {
         if (fontSize < 8.0f)
             fontSize = 8.0f;
         if (fontSize > 500.0f)
@@ -172,6 +188,37 @@ public class TextSprite extends Sprite {
         textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
         return stream.toByteArray();
     }
+     */
+
+    private byte[] drawTextToByteArray() {
+        TextPaint textPaint = new TextPaint();
+        textPaint.setTypeface(typeface);
+        textPaint.setTextSize(fontSize);
+        textPaint.setFakeBoldText(false);
+        textPaint.setAntiAlias(true);
+        textPaint.setColor(fontColor);
+        Bitmap textBitmap = Bitmap.createBitmap((int)size.width, (int)size.height, Bitmap.Config.ARGB_8888);
+        textBitmap.eraseColor(bgColor);
+        // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
+        Canvas canvas = new Canvas(textBitmap);
+        StaticLayout textLayout = new StaticLayout(text, textPaint, canvas.getWidth(),
+                horizontalAlign, 1.0f, 0.0f, false);
+        canvas.save();
+
+        // calculate x and y position where your text will be placed
+        if (verticalAlign == Layout.Alignment.ALIGN_CENTER) {
+            canvas.translate(0, (size.height - textLayout.getHeight()) / 2);
+        } else if (verticalAlign == Layout.Alignment.ALIGN_OPPOSITE) {
+            canvas.translate(0, size.height - textLayout.getHeight());
+        }
+        textLayout.draw(canvas);
+
+        canvas.restore();
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream() ;
+        textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
+        return stream.toByteArray();
+    }
 
     /**
      *
@@ -185,7 +232,7 @@ public class TextSprite extends Sprite {
 
         asset = originalAsset + UUID.randomUUID();
 
-        rawBytes = drawTextToByteArray(text, typeface, fontSize, fontColor, textAlign);
+        rawBytes = drawTextToByteArray();
         if (id != INVALID_ID) {
             spriteIDsToLazyDelete.add(new Pair<>(id, 1));
             id = INVALID_ID;
@@ -216,7 +263,8 @@ public class TextSprite extends Sprite {
     private float fontSize;
     private int fontColor;
     private int bgColor;
-    private Paint.Align textAlign;
+    private Layout.Alignment horizontalAlign;
+    private Layout.Alignment verticalAlign;
     private Typeface typeface;
     private ArrayList<Pair<Integer, Integer>> spriteIDsToLazyDelete = new ArrayList<>();
 }
