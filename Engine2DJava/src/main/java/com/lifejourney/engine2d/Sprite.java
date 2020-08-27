@@ -120,7 +120,6 @@ public class Sprite {
      * @return
      */
     public boolean load() {
-
         ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
         if (rawBytes != null) {
             if (!resourceManager.loadTexture(asset, rawBytes, smooth)) {

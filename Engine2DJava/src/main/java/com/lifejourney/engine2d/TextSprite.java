@@ -28,9 +28,12 @@ public class TextSprite extends Sprite {
         // optional
         private int fontColor = Color.argb(255, 255, 255, 255);
         private int bgColor = Color.argb(0, 0, 0, 0);
-        private String fontName;
+        private String fontName = null;
         private Layout.Alignment horizontalAlign = Layout.Alignment.ALIGN_NORMAL;
         private Layout.Alignment verticalAlign = Layout.Alignment.ALIGN_NORMAL;
+        private boolean shadow = false;
+        private int shadowColor = Color.argb(0, 0, 0, 0);
+        private float shadowDepth = 1.0f;
 
         public Builder(String name, String text, float fontSize) {
             super(name);
@@ -57,13 +60,18 @@ public class TextSprite extends Sprite {
             this.verticalAlign = verticalAlign;
             return this;
         }
+        public Builder shadow(int shadowColor, float shadowDepth) {
+            this.shadow = true;
+            this.shadowColor = shadowColor;
+            this.shadowDepth = shadowDepth;
+            return this;
+        }
         public TextSprite build() {
             return new TextSprite(this);
         }
     };
 
     private TextSprite(Builder builder) {
-
         super(builder, false);
         text            = builder.text;
         fontSize        = builder.fontSize;
@@ -71,6 +79,9 @@ public class TextSprite extends Sprite {
         bgColor         = builder.bgColor;
         horizontalAlign = builder.horizontalAlign;
         verticalAlign   = builder.verticalAlign;
+        shadow          = builder.shadow;
+        shadowColor     = builder.shadowColor;
+        shadowDepth     = builder.shadowDepth;
         if (builder.fontName != null) {
             ResourceManager resourceManager = Engine2D.GetInstance().getResourceManager();
             typeface = resourceManager.loadTypeface(builder.fontName);
@@ -101,7 +112,6 @@ public class TextSprite extends Sprite {
 
     @Override
     public void commit() {
-
         Iterator<Pair<Integer, Integer>> it = spriteIDsToLazyDelete.iterator();
         while (it.hasNext()) {
             nSetProperties(it.next().first,
@@ -127,101 +137,6 @@ public class TextSprite extends Sprite {
 
     /**
      *
-     * @param text
-     * @param typeface
-     * @param fontSize
-     * @param fontColor
-     * @param align
-     * @return
-     */
-    /*
-    private byte[] drawTextToByteArray(String text, Typeface typeface, float fontSize, int fontColor,
-                                       Paint.Align align) {
-        if (fontSize < 8.0f)
-            fontSize = 8.0f;
-        if (fontSize > 500.0f)
-            fontSize = 500.0f;
-
-        Paint textPaint = new Paint();
-        textPaint.setTypeface(typeface);
-        textPaint.setTextSize(fontSize);
-        textPaint.setFakeBoldText(false);
-        textPaint.setAntiAlias(true);
-        textPaint.setColor(fontColor);
-        // If a hinting is available on the platform you are developing, you should enable it (uncomment the line below).
-        //textPaint.setHinting(Paint.HINTING_ON);
-        textPaint.setSubpixelText(true);
-        textPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
-        // Creates a new mutable bitmap, with 128px of width and height
-        //int bitmapWidth = (int) (realTextWidth + 2.0f);
-        //int bitmapHeight = (int) aFontSize + 2;
-        Bitmap textBitmap = Bitmap.createBitmap((int)size.width, (int)size.height, Bitmap.Config.ARGB_8888);
-        textBitmap.eraseColor(bgColor);
-        // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
-        Canvas bitmapCanvas = new Canvas(textBitmap);
-        // Set start drawing position to [1, base_line_position]
-        // The base_line_position may vary from one font to another but it usually is equal to 75% of font size (height).
-        float y = textPaint.descent() - textPaint.ascent();
-
-        if (align == Paint.Align.CENTER) {
-            int lineSize = text.split("\n").length;
-            y += (size.height - y * lineSize) / 2 - 5;
-        }
-        for (String line: text.split("\n")) {
-            int x;
-            float realTextWidth = textPaint.measureText(line);
-            if (align == Paint.Align.LEFT) {
-                x = 0;
-            }
-            else if (align == Paint.Align.CENTER) {
-                x = (int) ((size.width - realTextWidth) / 2);
-
-            }
-            else {
-                x = (int) (size.width - realTextWidth);
-            }
-            bitmapCanvas.drawText(line, x, y, textPaint);
-            y += textPaint.descent() - textPaint.ascent();
-        }
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream() ;
-        textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
-        return stream.toByteArray();
-    }
-     */
-
-    private byte[] drawTextToByteArray() {
-        TextPaint textPaint = new TextPaint();
-        textPaint.setTypeface(typeface);
-        textPaint.setTextSize(fontSize);
-        textPaint.setFakeBoldText(false);
-        textPaint.setAntiAlias(true);
-        textPaint.setColor(fontColor);
-        Bitmap textBitmap = Bitmap.createBitmap((int)size.width, (int)size.height, Bitmap.Config.ARGB_8888);
-        textBitmap.eraseColor(bgColor);
-        // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
-        Canvas canvas = new Canvas(textBitmap);
-        StaticLayout textLayout = new StaticLayout(text, textPaint, canvas.getWidth(),
-                horizontalAlign, 1.0f, 0.0f, false);
-        canvas.save();
-
-        // calculate x and y position where your text will be placed
-        if (verticalAlign == Layout.Alignment.ALIGN_CENTER) {
-            canvas.translate(0, (size.height - textLayout.getHeight()) / 2);
-        } else if (verticalAlign == Layout.Alignment.ALIGN_OPPOSITE) {
-            canvas.translate(0, size.height - textLayout.getHeight());
-        }
-        textLayout.draw(canvas);
-
-        canvas.restore();
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream() ;
-        textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
-        return stream.toByteArray();
-    }
-
-    /**
-     *
      * @return
      */
     public boolean load() {
@@ -239,6 +154,50 @@ public class TextSprite extends Sprite {
         }
 
         return super.load();
+    }
+
+    /**
+     *
+     * @return
+     */
+    private byte[] drawTextToByteArray() {
+        TextPaint textPaint = new TextPaint();
+        textPaint.setTypeface(typeface);
+        textPaint.setTextSize(fontSize);
+        textPaint.setFakeBoldText(false);
+        textPaint.setAntiAlias(true);
+
+        Bitmap textBitmap = Bitmap.createBitmap((int)size.width, (int)size.height, Bitmap.Config.ARGB_8888);
+        textBitmap.eraseColor(bgColor);
+
+        // Creates a new canvas that will draw into a bitmap instead of rendering into the screen
+        Canvas canvas = new Canvas(textBitmap);
+        StaticLayout textLayout = new StaticLayout(text, textPaint, canvas.getWidth(),
+                horizontalAlign, 1.0f, 0.0f, false);
+        canvas.save();
+
+        // calculate x and y position where your text will be placed
+        if (verticalAlign == Layout.Alignment.ALIGN_CENTER) {
+            canvas.translate(0, (size.height - textLayout.getHeight()) / 2);
+        } else if (verticalAlign == Layout.Alignment.ALIGN_OPPOSITE) {
+            canvas.translate(0, size.height - textLayout.getHeight());
+        }
+
+        if (shadow) {
+            textPaint.setColor(shadowColor);
+            canvas.translate(0, shadowDepth);
+            textLayout.draw(canvas);
+        }
+
+        textPaint.setColor(fontColor);
+        canvas.translate(0, -shadowDepth);
+        textLayout.draw(canvas);
+
+        canvas.restore();
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream() ;
+        textBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) ;
+        return stream.toByteArray();
     }
 
     /**
@@ -267,4 +226,7 @@ public class TextSprite extends Sprite {
     private Layout.Alignment verticalAlign;
     private Typeface typeface;
     private ArrayList<Pair<Integer, Integer>> spriteIDsToLazyDelete = new ArrayList<>();
+    private boolean shadow;
+    private int shadowColor;
+    private float shadowDepth;
 }
