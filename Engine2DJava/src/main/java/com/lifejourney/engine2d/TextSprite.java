@@ -217,6 +217,17 @@ public class TextSprite extends Sprite {
         this.fontColor = fontColor;
     }
 
+    /**
+     *
+     * @param shadowColor
+     * @param shadowDepth
+     */
+    public void setShadow(int shadowColor, float shadowDepth) {
+        this.shadow = true;
+        this.shadowColor = shadowColor;
+        this.shadowDepth = shadowDepth;
+    }
+
     private String text;
     private String originalAsset;
     private float fontSize;

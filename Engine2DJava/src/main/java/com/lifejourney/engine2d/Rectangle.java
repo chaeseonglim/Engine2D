@@ -55,13 +55,17 @@ public class Rectangle {
         visible     = builder.visible;
         lineWidth   = builder.lineWidth;
 
-        lines.add(new Line.Builder(region.topLeft(), region.bottomLeft()).color(color)
+        lines.add(new Line.Builder(region.topLeft().offset(0, -lineWidth/2),
+                region.bottomLeft().offset(0, lineWidth/2)).color(color)
             .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
-        lines.add(new Line.Builder(region.topLeft(), region.topRight()).color(color)
+        lines.add(new Line.Builder(region.topLeft().offset(-lineWidth/2, 0),
+                region.topRight().offset(lineWidth/2, 0)).color(color)
                 .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
-        lines.add(new Line.Builder(region.topRight(), region.bottomRight()).color(color)
+        lines.add(new Line.Builder(region.topRight().offset(0, -lineWidth/2),
+                region.bottomRight().offset(0, lineWidth/2)).color(color)
                 .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
-        lines.add(new Line.Builder(region.bottomLeft(), region.bottomRight()).color(color)
+        lines.add(new Line.Builder(region.bottomLeft().offset(-lineWidth/2, 0),
+                region.bottomRight().offset(lineWidth/2, 0)).color(color)
                 .layer(layer).depth(depth).lineWidth(lineWidth).visible(visible).build());
     }
 
@@ -166,10 +170,14 @@ public class Rectangle {
      */
     public void setRegion(RectF region) {
         this.region = region;
-        lines.get(0).setPoints(region.topLeft(), region.bottomLeft());
-        lines.get(1).setPoints(region.topLeft(), region.topRight());
-        lines.get(2).setPoints(region.topRight(), region.bottomRight());
-        lines.get(3).setPoints(region.bottomLeft(), region.bottomRight());
+        lines.get(0).setPoints(region.topLeft().offset(0, -lineWidth/2),
+                region.bottomLeft().offset(0, lineWidth/2));
+        lines.get(1).setPoints(region.topLeft().offset(-lineWidth/2, 0),
+                region.topRight().offset(lineWidth/2, 0));
+        lines.get(2).setPoints(region.topRight().offset(0, -lineWidth/2),
+                region.bottomRight().offset(0, lineWidth/2));
+        lines.get(3).setPoints(region.bottomLeft().offset(-lineWidth/2, 0),
+                region.bottomRight().offset(lineWidth/2, 0));
     }
 
     /**

@@ -2,11 +2,13 @@ package com.lifejourney.engine2d;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.net.Uri;
 import android.util.Log;
 import android.view.Surface;
 
@@ -438,6 +440,16 @@ public class Engine2D implements MediaPlayer.OnCompletionListener {
      */
     public void setBackgroundColor(int rgb) {
         nEngineSetBackgroundColor((int)Color.red(rgb), (int)Color.green(rgb), (int)Color.blue(rgb));
+    }
+
+    /**
+     *
+     * @param url
+     */
+    public void gotoUrl(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        activity.startActivity(intent);
     }
 
     private Activity activity;
