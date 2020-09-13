@@ -39,8 +39,10 @@ public class World {
         }
         widgets.clear();
 
-        view.close();
-        view = null;
+        if (view != null) {
+            view.close();
+            view = null;
+        }
     }
 
     /**
